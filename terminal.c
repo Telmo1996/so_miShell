@@ -1,3 +1,8 @@
+/*
+anna.taboada@udc.es     Anna Taboada Pardiñas
+telmo.fcorujo@udc.es    Telmo Fernandez Corujo
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,6 +16,11 @@
 char linea[MAXLINEA+1];
 char *trozos[200];
 char *args[50];
+
+struct Node {
+    struct Node* next;
+    int comando;
+};
 
 struct datoCmd {
     char *nombre;
@@ -139,8 +149,18 @@ struct datoCmd tablaComandos[] = {
     {NULL, NULL}
 };
 
+void CreateList(struct Node* lista){
+    lista = (struct Node*)malloc(sizeof(struct Node));
+    lista->next = NULL;
+    lista->comando = 42; 
+}
+
 int main(int argc, char *argv[]) {
     int ntrozos=0,i;
+    struct Node* lista=NULL;
+    CreateList(lista);
+
+    printf("%d", lista->comando);
 
     while (true){
         printf("@");
