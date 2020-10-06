@@ -157,13 +157,40 @@ node_t * CreateList(){
         return 1;
     }*/
 
-    head->val = "uno";
+    head->val = "";
     head->next = NULL;
-    head->next = (node_t *) malloc(sizeof(node_t));
-    head->next->val = "dos";
-    head->next->next = NULL;
 
     return head;
+}
+
+void InsertElement(char *valor ,node_t * head){
+    node_t * current = head;
+    while (current->next != NULL) {
+        current = current->next;
+    }
+
+    /* now we can add a new variable */
+    current->next = (node_t *) malloc(sizeof(node_t));
+    current->next->val = valor;
+    current->next->next = NULL;
+}
+
+void RemoveElement(node_t * head) {
+    /* if there is only one item in the list, remove it */
+    if (head->next == NULL) {
+        free(head);
+    }
+
+    /* get to the second to last node in the list */
+    node_t * current = head;
+    while (current->next->next != NULL) {
+        current = current->next;
+    }
+
+    /* now current points to the second to last item of the list, so let's remove current->next */
+    free(current->next);
+    current->next = NULL;
+
 }
 
 void print_list(node_t * head) {
@@ -177,23 +204,12 @@ void print_list(node_t * head) {
 
 
 int main(int argc, char *argv[]) {
-/*    node_t * head = NULL;
-    head = (node_t *) malloc(sizeof(node_t));
-    if (head == NULL) {
-        return 1;
-    }
-
-    head->val = "uno";
-    head->next = NULL;
-    head->next = (node_t *) malloc(sizeof(node_t));
-    head->next->val = "dos";
-    head->next->next = NULL;
-
-    print_list(head);
-*/
     int ntrozos=0,i;
     node_t * lista = CreateList();
 
+    InsertElement("hola", lista);
+    InsertElement("hola", lista);
+    RemoveElement(lista);
     print_list(lista);
 
     while (true){
