@@ -10,12 +10,13 @@ telmo.fcorujo@udc.es    Telmo Fernandez Corujo
 #include <sys/types.h>
 #include <unistd.h>
 #include <time.h>
-
+#include <regex.h>
 
 #define MAXLINEA 4095
 char linea[MAXLINEA+1];
 char *trozos[200];
 char *args[50];
+
 
 typedef struct node {
     struct node * next;
@@ -134,6 +135,57 @@ int cmdChdir(int argc, char *argv[]){
     return 0;
 }
 
+int cmdHistoric(int argc, char *argv[]){
+
+    char opC=0, opN=0, oprN=0;
+    int i;
+    regex_t regex;
+    int reti;
+    char msgbuf[100];
+
+    reti = regcomp(&regex, "^[0-9]", 0);
+    if (reti){
+    fprintf(stderr, "Could not compile regex\n");
+    exit(1);
+    }
+
+    reti = regexec(&regex, "abc", 0, NULL, 0);
+    if (!reti) {
+    puts("Match");
+    }
+    else if (reti == REG_NOMATCH) {
+    puts("No match");
+    }
+    else {
+    regerror(reti, &regex, msgbuf, sizeof(msgbuf));
+    fprintf(stderr, "Regex match failed: %s\n", msgbuf);
+    exit(1);
+    }
+    regfree(&regex);
+    
+    
+    for(i=1; i<argc; i++){
+    reti = regexec(&regex, argv[i], 0, NULL, 0);  
+        if(!reti)opN=1;
+        printf("%d\n", opN);
+        if (strcmp(argv[i], "-c")) opC=1;
+           
+    
+    }
+    /*
+    if (argc==1) op=opN=1;
+
+    if (opL) printf("anna.taboada@udc.es\n");
+    if (opL) printf("telmo.fcorujo@udc.es\n");
+    if (opN) printf("Anna Taboada Pardiñas\n");
+    if (opN) printf("Telmo Fernandez Corujo\n");
+
+    return 0;
+    */
+
+}
+
+
 
 struct datoCmd tablaComandos[] = {
     {"autores", cmdAutores},
@@ -147,6 +199,7 @@ struct datoCmd tablaComandos[] = {
     {"time",cmdTime},
     {"chdir",cmdChdir},
     {"cd",cmdChdir},
+    {"historic",cmdHistoric},
     {NULL, NULL}
 };
 
