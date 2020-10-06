@@ -17,10 +17,11 @@ char linea[MAXLINEA+1];
 char *trozos[200];
 char *args[50];
 
-struct Node {
-    struct Node* next;
-    int comando;
-};
+typedef struct node {
+    struct node * next;
+    char *val;
+} node_t;
+
 
 struct datoCmd {
     char *nombre;
@@ -149,18 +150,51 @@ struct datoCmd tablaComandos[] = {
     {NULL, NULL}
 };
 
-void CreateList(struct Node* lista){
-    lista = (struct Node*)malloc(sizeof(struct Node));
-    lista->next = NULL;
-    lista->comando = 42; 
+node_t * CreateList(){
+    node_t * head = NULL;
+    head = (node_t *) malloc(sizeof(node_t));
+    /*if (head == NULL) {
+        return 1;
+    }*/
+
+    head->val = "uno";
+    head->next = NULL;
+    head->next = (node_t *) malloc(sizeof(node_t));
+    head->next->val = "dos";
+    head->next->next = NULL;
+
+    return head;
 }
 
-int main(int argc, char *argv[]) {
-    int ntrozos=0,i;
-    struct Node* lista=NULL;
-    CreateList(lista);
+void print_list(node_t * head) {
+    node_t * current = head;
 
-    printf("%d", lista->comando);
+    while (current != NULL) {
+        printf("%s\n", current->val);
+        current = current->next;
+    }
+}
+
+
+int main(int argc, char *argv[]) {
+/*    node_t * head = NULL;
+    head = (node_t *) malloc(sizeof(node_t));
+    if (head == NULL) {
+        return 1;
+    }
+
+    head->val = "uno";
+    head->next = NULL;
+    head->next = (node_t *) malloc(sizeof(node_t));
+    head->next->val = "dos";
+    head->next->next = NULL;
+
+    print_list(head);
+*/
+    int ntrozos=0,i;
+    node_t * lista = CreateList();
+
+    print_list(lista);
 
     while (true){
         printf("@");
