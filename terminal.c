@@ -51,7 +51,7 @@ void InsertElement(char *valor ,node_t * head){
 
     /* now we can add a new variable */
     current->next = (node_t *) malloc(sizeof(node_t));
-    current->next->val = valor;
+    current->next->val = strdup(valor);
     current->next->next = NULL;
 }
 
@@ -68,6 +68,7 @@ void RemoveElement(node_t * head) {
     }
 
     /* now current points to the second to last item of the list, so let's remove current->next */
+	free(current->next->val);
     free(current->next);
     current->next = NULL;
 
@@ -83,7 +84,7 @@ void print_list(node_t * head, int hasta) {
 	}
 
     while (current != NULL) {
-        printf("%d %s\n", i,  current->val);
+        printf("%d %s", i,  current->val);
         current = current->next;
 		if(i == hasta)
 			break;
@@ -216,9 +217,8 @@ int mi_regex(char * regexString, char * cadena){
 }
 
 int cmdHistoric(int argc, char *argv[]){
-
     char opC=0, opN=0, oprN=0;
-    int i, j, n;
+    int i, j, n, ntrozos;
     
     for(i=1; i<argc; i++){
         if(mi_regex("^-[0-9]", argv[i])==1){
@@ -246,7 +246,8 @@ int cmdHistoric(int argc, char *argv[]){
 		if(opN){
 			print_list(lista, n);
 		}else if(oprN){
-			/*for (j=0; ;i++){
+			/*ntrozos=TrocearCadena(linea, trozos);
+			for (j=0; ;i++){
 		        if (tablaComandos[j].nombre==NULL){
 		            printf("no entiendo\n");
 		            break;
@@ -263,8 +264,6 @@ int cmdHistoric(int argc, char *argv[]){
 
     return 0;
 }
-
-
 
 struct datoCmd tablaComandos[] = {
     {"autores", cmdAutores},
@@ -286,6 +285,7 @@ int main(int argc, char *argv[]) {
     int ntrozos=0,i;
 	char* lineaHistoric;
 	lista = CreateList();
+	/*char* test = "sooy un test";
 
     InsertElement("hola uno", lista);
     InsertElement("hola dos", lista);
@@ -297,7 +297,7 @@ int main(int argc, char *argv[]) {
 	
 	char* l="-123";
 
-	printf("%d", atoi(l+1));
+	printf("%d", atoi(l+1));*/
     
     /*if(mi_regex("^-n$", "-n")==1)
         printf("si");
@@ -310,9 +310,8 @@ int main(int argc, char *argv[]) {
         printf("> ");
 
         if(fgets(linea, MAXLINEA, stdin)==NULL) exit(0);
-		lineaHistoric = linea;
 		InsertElement(lineaHistoric, lista);
-		printf("%s", lineaHistoric);
+		//printf("%s", lineaHistoric);
         ntrozos=TrocearCadena(linea, trozos);
         for (i=0; ;i++){
             if (tablaComandos[i].nombre==NULL){
