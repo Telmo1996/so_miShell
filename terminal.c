@@ -135,11 +135,38 @@ int cmdChdir(int argc, char *argv[]){
     return 0;
 }
 
+int mi_regex(char * regexString, char * cadena){
+    regex_t regex;
+    int reti;
+    char msgbuf[100];
+
+    reti = regcomp(&regex, regexString, 0);
+    if (reti){
+    fprintf(stderr, "Could not compile regex\n");
+    exit(1);
+    }
+
+    reti = regexec(&regex, cadena, 0, NULL, 0);
+    if (!reti) {
+        return(1);
+    }
+    else if (reti == REG_NOMATCH) {
+        return(0);
+    }
+    else {
+    regerror(reti, &regex, msgbuf, sizeof(msgbuf));
+    fprintf(stderr, "Regex match failed: %s\n", msgbuf);
+    exit(1);
+    }
+    regfree(&regex);
+
+}
+
 int cmdHistoric(int argc, char *argv[]){
 
     char opC=0, opN=0, oprN=0;
     int i;
-    regex_t regex;
+    /*regex_t regex;
     int reti;
     char msgbuf[100];
 
@@ -162,16 +189,16 @@ int cmdHistoric(int argc, char *argv[]){
     exit(1);
     }
     regfree(&regex);
+    */
     
-    
-    for(i=1; i<argc; i++){
+    /*for(i=1; i<argc; i++){
     reti = regexec(&regex, argv[i], 0, NULL, 0);  
         if(!reti)opN=1;
         printf("%d\n", opN);
         if (strcmp(argv[i], "-c")) opC=1;
            
     
-    }
+    }*/
     /*
     if (argc==1) op=opN=1;
 
@@ -264,6 +291,11 @@ int main(int argc, char *argv[]) {
     InsertElement("hola", lista);
     RemoveElement(lista);
     print_list(lista);
+    
+    if(mi_regex("^-[0-9]+", "-345")==1)
+        printf("si");
+    else
+        printf("no");
 
     while (true){
         printf("@");
