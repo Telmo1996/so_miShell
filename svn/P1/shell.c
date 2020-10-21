@@ -270,15 +270,18 @@ int cmdCreate(int argc, char *argv[]){
     char opD=0, opList=0;
     DIR *dirp;
     struct dirent *direntp;
-    printf("1");
-    if(argc=1){
+    printf("%d",argc);
+    if(argc==1){
         opList=1;
-    }else if(strcmp(argv[1], "-dir")==0){
-        opD=1;
+    }else{
+        /*if(argv[1] != NULL){
+            if(strcmp(argv[1], "-dir")==0)
+                opD=1;
+        }*/
     }
     
     if(opList){
-        dirp = opendir(argv[2]);
+        dirp = opendir(".");
         if(dirp == NULL){
             printf("error\n");
             exit(2);
@@ -286,6 +289,7 @@ int cmdCreate(int argc, char *argv[]){
 
         printf("i-node\toffset\t\tlong\tnombre\n");
         while((direntp = readdir(dirp)) != NULL){
+            //TODO ojo con el directorio actual
             printf("%ld\t%ld\t%d\t%s\n", direntp->d_ino, direntp->d_off,
                 direntp->d_reclen, direntp->d_name
             );
