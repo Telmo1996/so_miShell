@@ -11,6 +11,7 @@ telmo.fcorujo@udc.es    Telmo Fernandez Corujo
 #include <unistd.h>
 #include <time.h>
 #include <regex.h>
+#include <dirent.h>
 
 #define MAXLINEA 4095
 char linea[MAXLINEA+1];
@@ -265,6 +266,35 @@ int cmdHistoric(int argc, char *argv[]){
     return 0;
 }
 
+int cmdCreate(int argc, char *argv[]){
+    char opD=0, opList=0;
+    DIR *dirp;
+    struct dirent *direntp;
+    printf("1");
+    if(argc=1){
+        opList=1;
+    }else if(strcmp(argv[1], "-dir")==0){
+        opD=1;
+    }
+    
+    if(opList){
+        dirp = opendir(argv[2]);
+        if(dirp == NULL){
+            printf("error\n");
+            exit(2);
+        }
+
+        printf("i-node\toffset\t\tlong\tnombre\n");
+        while((direntp = readdir(dirp)) != NULL){
+            printf("%ld\t%ld\t%d\t%s\n", direntp->d_ino, direntp->d_off,
+                direntp->d_reclen, direntp->d_name
+            );
+        }
+    }
+
+    
+}
+
 struct datoCmd tablaComandos[] = {
     {"autores", cmdAutores},
     {"exit", cmdExit},
@@ -278,6 +308,7 @@ struct datoCmd tablaComandos[] = {
     {"chdir",cmdChdir},
     {"cd",cmdChdir},
     {"historic",cmdHistoric},
+    {"create",cmdCreate},
     {NULL, NULL}
 };
 
