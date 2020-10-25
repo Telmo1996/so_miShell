@@ -217,55 +217,6 @@ int mi_regex(char * regexString, char * cadena){
 
 }
 
-int cmdHistoric(int argc, char *argv[]){
-    char opC=0, opN=0, oprN=0;
-    int i, j, n, ntrozos;
-    
-    for(i=1; i<argc; i++){
-        if(mi_regex("^-[0-9]", argv[i])==1){
-			opN=1;
-			n = atoi(argv[i] + 1);
-		}
-		if(mi_regex("^-r[0-9]", argv[i])==1){
-			oprN=1;
-			n = atoi(argv[i] + 2);
-		}
-        if (strcmp(argv[i], "-c")==0) opC=1;
-    }
-	if(opC + opN + oprN > 1){
-		printf("Demasiadas opciones\n");
-		return 1;
-	}
-	//printf("c %d n %d rn %d\n", opC, opN, oprN);
-    
-	if(opC){
-		//Borrar	
-		while(lista->next!=NULL){
-			RemoveElement(lista);
-		}
-	}else{
-		if(opN){
-			print_list(lista, n);
-		}else if(oprN){
-			/*ntrozos=TrocearCadena(linea, trozos);
-			for (j=0; ;i++){
-		        if (tablaComandos[j].nombre==NULL){
-		            printf("no entiendo\n");
-		            break;
-		        }
-		        if (strcmp(tablaComandos[j].nombre, trozos[0])==0){
-		            tablaComandos[j].fun(ntrozos, trozos);
-		            break;
-		        }
-		    }*/
-		}else{
-			print_list(lista, 0);
-		}
-	}
-
-    return 0;
-}
-
 int cmdCreate(int argc, char *argv[]){
     char opD=0, opList=0;
     DIR *dirp;
@@ -296,7 +247,86 @@ int cmdCreate(int argc, char *argv[]){
         }
     }
 
+	return 0;    
+}
+
+int cmdHistoric(int argc, char *argv[]){
+	node_t * head = lista;
+    node_t * current = head->next;
+    char opC=0, opN=0, oprN=0;
+    int i, j, n, cmdNum, ntrozos;
+	
+	struct datoCmd tablaComandos[] = {
+		{"autores", cmdAutores},
+		{"exit", cmdExit},
+		{"quit",cmdExit},
+		{"end",cmdExit},
+		{"getpid", cmdGetpid},
+		{"getppid", cmdGetppid},
+		{"pwd", cmdPwd},
+		{"date",cmdDate},
+		{"time",cmdTime},
+		{"chdir",cmdChdir},
+		{"cd",cmdChdir},
+		{"historic",cmdHistoric},
+		{"create",cmdCreate},
+		{NULL, NULL}
+	};
+
+    for(i=1; i<argc; i++){
+        if(mi_regex("^-[0-9]", argv[i])==1){
+			opN=1;
+			n = atoi(argv[i] + 1);
+		}
+		if(mi_regex("^-r[0-9]", argv[i])==1){
+			oprN=1;
+			n = atoi(argv[i] + 2);
+		}
+        if (strcmp(argv[i], "-c")==0) opC=1;
+    }
+	if(opC + opN + oprN > 1){
+		printf("Demasiadas opciones\n");
+		return 1;
+	}
+	//printf("c %d n %d rn %d\n", opC, opN, oprN);
     
+	if(opC){
+		//Borrar	
+		while(lista->next!=NULL){
+			RemoveElement(lista);
+		}
+	}else{
+		if(opN){
+			print_list(lista, n);
+		}else if(oprN){
+			//Recuperar el comando
+			//printf("comando: %s\n",current->val);
+			cmdNum=0;
+			while(current->next != NULL){ //TODO comprobar que n no se pase
+				if(cmdNum == n-1)
+					break;
+				current = current->next;
+				cmdNum++;
+			}
+			//printf("%d,%d\n", n, cmdNum);
+			//printf("comando: %s\n",current->val);
+			ntrozos=TrocearCadena(current->val, trozos);
+			for (j=0; ;j++){
+		        if (tablaComandos[j].nombre==NULL){
+		            printf("no entiendo\n");
+		            break;
+		        }
+		        if (strcmp(tablaComandos[j].nombre, trozos[0])==0){
+		            tablaComandos[j].fun(ntrozos, trozos);
+		            break;
+		        }
+		    }
+		}else{
+			print_list(lista, 0);
+		}
+	}
+
+    return 0;
 }
 
 struct datoCmd tablaComandos[] = {
