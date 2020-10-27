@@ -12,6 +12,7 @@ telmo.fcorujo@udc.es    Telmo Fernandez Corujo
 #include <time.h>
 #include <regex.h>
 #include <dirent.h>
+#include <sys/stat.h>
 
 #define MAXLINEA 4095
 char linea[MAXLINEA+1];
@@ -218,17 +219,30 @@ int mi_regex(char * regexString, char * cadena){
 }
 
 int cmdCreate(int argc, char *argv[]){
-    char opD=0, opList=0;
+    char opD=0, opList=0, opC=0;
+	char * name;
     DIR *dirp;
     struct dirent *direntp;
-    printf("%d",argc);
+	FILE *fp;
+	struct stat st = {0};
+
     if(argc==1){
         opList=1;
     }else{
-        /*if(argv[1] != NULL){
-            if(strcmp(argv[1], "-dir")==0)
+        if(argv[1] != NULL){
+            if(strcmp(argv[1], "-dir")==0){
                 opD=1;
-        }*/
+				if(argv[2] != NULL){
+					name = argv[2];
+					opC=1;
+				}else{
+					opList=1;
+				}
+			}else{
+				name = argv[1];
+				opC=1;
+			}
+        }
     }
     
     if(opList){
@@ -238,14 +252,22 @@ int cmdCreate(int argc, char *argv[]){
             exit(2);
         }
 
-        printf("i-node\toffset\t\tlong\tnombre\n");
         while((direntp = readdir(dirp)) != NULL){
             //TODO ojo con el directorio actual
-            printf("%ld\t%ld\t%d\t%s\n", direntp->d_ino, direntp->d_off,
-                direntp->d_reclen, direntp->d_name
-            );
+            printf("%s\n", direntp->d_name);
         }
     }
+
+	if(opC && !opD){
+		fp = fopen(name, "a");
+		fclose(fp);
+	}
+
+	if(opC && opD){
+		if (stat(name, &st) == -1) {
+			mkdir(name, 0700);
+		}
+	}
 
 	return 0;    
 }
