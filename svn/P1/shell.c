@@ -277,6 +277,7 @@ int cmdList(int argc, char *argv[]){
 
 
 	//esto lo escribe telmo
+	printf("hola soy telmo");
 
 
 	exit 0;
