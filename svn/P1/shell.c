@@ -274,7 +274,13 @@ int cmdCreate(int argc, char *argv[]){
 
 int cmdList(int argc, char *argv[]){
 	//esto lo escribe anna
-    printf("ikjdhsaldsandl");
+    char opL=0, opD=0, opH=0, opR=0;
+    for(i=1; i<argc; i++){
+        if (strcmp(argv[i], "-long")) opL=1;
+        else if (strcmp(argv[i], "-dir")) opD=1;
+        else if (strcmp(argv[i], "-hid")) opH=1;
+        else if (string(argv[i], "-rec")) opR=1;
+    }
 
 	//esto lo escribe telmo
 	printf("hola soy telmo");
