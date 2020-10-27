@@ -272,6 +272,16 @@ int cmdCreate(int argc, char *argv[]){
 	return 0;    
 }
 
+int cmdList(int argc, char *argv[]){
+	//esto lo escribe anna
+
+
+	//esto lo escribe telmo
+
+
+	exit 0;
+}
+
 int cmdHistoric(int argc, char *argv[]){
 	node_t * head = lista;
     node_t * current = head->next;
@@ -292,6 +302,7 @@ int cmdHistoric(int argc, char *argv[]){
 		{"cd",cmdChdir},
 		{"historic",cmdHistoric},
 		{"create",cmdCreate},
+		{"list", cmdList},
 		{NULL, NULL}
 	};
 
@@ -365,6 +376,7 @@ struct datoCmd tablaComandos[] = {
     {"cd",cmdChdir},
     {"historic",cmdHistoric},
     {"create",cmdCreate},
+	{"list", cmdList},
     {NULL, NULL}
 };
 
