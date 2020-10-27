@@ -274,7 +274,7 @@ int cmdCreate(int argc, char *argv[]){
 
 int cmdList(int argc, char *argv[]){
 	//esto lo escribe anna
-
+    printf("ikjdhsaldsandl");
 
 	//esto lo escribe telmo
 
