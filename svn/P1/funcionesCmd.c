@@ -1,4 +1,5 @@
 #include "funcionesCmd.h"
+#include "list.h"
 
 node_t * CreateList(){
     node_t * head = NULL;
@@ -261,6 +262,7 @@ int cmdHistoric(int argc, char *argv[]){
 		{"cd",cmdChdir},
 		{"historic",cmdHistoric},
 		{"create",cmdCreate},
+		{"list",cmdList},
 		{NULL, NULL}
 	};
 

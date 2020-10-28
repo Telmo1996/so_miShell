@@ -15,6 +15,7 @@ telmo.fcorujo@udc.es    Telmo Fernandez Corujo
 #include <sys/stat.h>
 
 #include "funcionesCmd.h"
+#include "list.h"
 
 struct datoCmd tablaComandos[] = {
     {"autores", cmdAutores},
@@ -30,7 +31,7 @@ struct datoCmd tablaComandos[] = {
     {"cd",cmdChdir},
     {"historic",cmdHistoric},
     {"create",cmdCreate},
-	//{"list", cmdList},
+	{"list", cmdList},
     {NULL, NULL}
 };
 

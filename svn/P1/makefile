@@ -1,5 +1,5 @@
 miShell: shell.o funcionesCmd.o list.o
-	gcc -o miShell shell.o funcionesCmd.o
+	gcc -o miShell shell.o funcionesCmd.o list.o
 
 shell.o: shell.c
 	gcc -c shell.c
