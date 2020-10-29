@@ -1,5 +1,7 @@
 #include "list.h"
 
+int recu=0;
+
 char LetraTF (mode_t m){
 	switch (m&S_IFMT) { /*and bit a bit con los bits de formato,0170000 */
 		case S_IFSOCK:
@@ -26,7 +28,12 @@ void imprimirDirectorio(char path[256], char opL, char opD, char opH, char opR){
     DIR *dirp;
     struct dirent *direntp;
 	char tipo;
+	char tabs[100] = "";
+	char currPath[256];
 	struct stat s;
+
+	for(int j=0; j<recu; j++)
+		strcat(tabs, "\t");
 
 	//Abrir el directorio
 	dirp = opendir(path);
@@ -34,6 +41,12 @@ void imprimirDirectorio(char path[256], char opL, char opD, char opH, char opR){
 		return;
 	}
 
+	//Guardar el path actual
+	if (getcwd(currPath, sizeof(currPath)) == NULL) {
+		perror("getcwd() error");
+		return;
+	}
+	chdir(path);
 	while((direntp = readdir(dirp)) != NULL){
 		//Leer tipo
 		if( stat(direntp->d_name,&s) == 0 ){
@@ -50,20 +63,25 @@ void imprimirDirectorio(char path[256], char opL, char opD, char opH, char opR){
 				(strcmp("..", direntp->d_name)!=0)
 			){
 				//printf("%s %s %s \n",path, "/", direntp->d_name);
-				printf("\n%s:\n", direntp->d_name);
+				printf("%s%s:\n", tabs, direntp->d_name);
+				recu++;
 				imprimirDirectorio(strcat(strcat(path, "/"), direntp->d_name), opL, opD, opH, opR);
-				printf("-------------------------\n");
-			}
-			
-			if(opL){
-				printf("%ld\t%ld\t%d\t%c\t%s\n", direntp->d_ino, direntp->d_off,
-					direntp->d_reclen, tipo, direntp->d_name
-				);
+				recu--;
+				printf("%s-------------------------\n", tabs);
 			}else{
-				printf("%s\n", direntp->d_name);
+				if(opL){
+					printf("%s%ld\t%ld\t%d\t%c\t%s\n", tabs, 
+						direntp->d_ino, direntp->d_off,
+						direntp->d_reclen, tipo, direntp->d_name
+					);
+				}else{
+					printf("%s%s\n", tabs, direntp->d_name);
+				}
 			}
 		}
 	}
+
+	chdir(currPath);
 }
 
 int cmdList(int argc, char *argv[]){
@@ -80,9 +98,7 @@ int cmdList(int argc, char *argv[]){
     }
 
 	//Inicializar path con el directorio actual
-	if (getcwd(path, sizeof(path)) != NULL) {
-		
-	} else {
+	if (getcwd(path, sizeof(path)) == NULL) {
 		perror("getcwd() error");
 		return 1;
 	}
