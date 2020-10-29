@@ -21,16 +21,57 @@ char LetraTF (mode_t m){
 	}
 }
 
-int cmdList(int argc, char *argv[]){
-    char opL=0, opD=0, opH=0, opR=0;
+void imprimirDirectorio(char path[256], char opL, char opD, char opH, char opR){
 	char muestra=0;
     DIR *dirp;
     struct dirent *direntp;
-	char * name=".";
 	char tipo;
 	struct stat s;
+
+	//Abrir el directorio
+	dirp = opendir(path);
+	if(dirp == NULL){
+		return;
+	}
+
+	while((direntp = readdir(dirp)) != NULL){
+		//Leer tipo
+		if( stat(direntp->d_name,&s) == 0 ){
+			tipo = LetraTF(s.st_mode);
+		}
+		
+		muestra = 1;
+		if((direntp->d_name[0] == '.') && !opH) //Archivos ocultos
+			muestra=0;
+		if(muestra){ //Imprime dependiendo de -long
+			if(tipo == 'd' && 
+				opD && 
+				(strcmp(".", direntp->d_name)!=0) && 
+				(strcmp("..", direntp->d_name)!=0)
+			){
+				//printf("%s %s %s \n",path, "/", direntp->d_name);
+				printf("\n%s:\n", direntp->d_name);
+				imprimirDirectorio(strcat(strcat(path, "/"), direntp->d_name), opL, opD, opH, opR);
+				printf("-------------------------\n");
+			}
+			
+			if(opL){
+				printf("%ld\t%ld\t%d\t%c\t%s\n", direntp->d_ino, direntp->d_off,
+					direntp->d_reclen, tipo, direntp->d_name
+				);
+			}else{
+				printf("%s\n", direntp->d_name);
+			}
+		}
+	}
+}
+
+int cmdList(int argc, char *argv[]){
+    char opL=0, opD=0, opH=0, opR=0;
+	char path[256];
 	int i;
 
+	//Comprobación de la opciones
     for(i=1; i<argc; i++){
         if (strcmp(argv[i], "-long") == 0) opL=1;
         else if (strcmp(argv[i], "-dir") == 0) opD=1;
@@ -38,35 +79,21 @@ int cmdList(int argc, char *argv[]){
         else if (strcmp(argv[i], "-rec") == 0) opR=1;
     }
 
+	//Inicializar path con el directorio actual
+	if (getcwd(path, sizeof(path)) != NULL) {
+		
+	} else {
+		perror("getcwd() error");
+		return 1;
+	}
 
-	dirp = opendir(name);
-	if(dirp == NULL){
-		printf("error\n");
-		exit(2);
-	}
-	
+	//Imprimir la cabecera de la opción -long
 	if(opL)
-		printf("i-node\toffset\t\t\tlong\tnombre\ttipo\n");
-	else
-		printf("nombre\n");
-	while((direntp = readdir(dirp)) != NULL){
-		//TODO ojo con el directorio actual
-		if( stat(direntp->d_name,&s) == 0 ){
-			tipo = LetraTF(s.st_mode);
-		}
-		muestra = 1;
-		if((direntp->d_name[0] == '.') && !opH)
-			muestra=0;
-		if(muestra){
-			if(opL){
-				printf("%ld\t%ld\t%d\t%s\t%c\n", direntp->d_ino, direntp->d_off,
-					direntp->d_reclen, direntp->d_name, tipo
-				);
-			}else{
-				printf("%s\n", direntp->d_name);
-			}
-		}
-	}
+		printf("i-node\toffset\t\t\tlong\ttipo\tnombre\n");
+
+	
+	
+	imprimirDirectorio(path, opL, opD, opH, opR);
 
 	return 0;
 }
