@@ -46,6 +46,7 @@ void imprimirDirectorio(char path[256], char opL, char opD, char opH, char opR){
 		perror("getcwd() error");
 		return;
 	}
+	printf("currrPath: %s\n", currPath);
 	chdir(path);
 	while((direntp = readdir(dirp)) != NULL){
 		//Leer tipo
@@ -53,19 +54,20 @@ void imprimirDirectorio(char path[256], char opL, char opD, char opH, char opR){
 			tipo = LetraTF(s.st_mode);
 		}
 		
-		muestra = 1;
-		if((direntp->d_name[0] == '.') && !opH) //Archivos ocultos
-			muestra=0;
+		muestra = 0;
+		if((direntp->d_name[0] != '.') || opH) //Archivos ocultos
+			muestra=1;
 		if(muestra){ //Imprime dependiendo de -long
 			if(tipo == 'd' && 
 				opD && 
 				(strcmp(".", direntp->d_name)!=0) && 
 				(strcmp("..", direntp->d_name)!=0)
 			){
-				//printf("%s %s %s \n",path, "/", direntp->d_name);
+				printf("%s %s %s \n",path, "/", direntp->d_name);
 				printf("%s%s:\n", tabs, direntp->d_name);
 				recu++;
 				imprimirDirectorio(strcat(strcat(path, "/"), direntp->d_name), opL, opD, opH, opR);
+				chdir(path);
 				recu--;
 				printf("%s-------------------------\n", tabs);
 			}else{
@@ -81,7 +83,6 @@ void imprimirDirectorio(char path[256], char opL, char opD, char opH, char opR){
 		}
 	}
 
-	chdir(currPath);
 }
 
 int cmdList(int argc, char *argv[]){
