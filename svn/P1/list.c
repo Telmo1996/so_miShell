@@ -29,11 +29,11 @@ void imprimirDirectorio(char path[256], char opL, char opD, char opH, char opR){
     struct dirent *direntp;
 	char tipo;
 	char tabs[100] = "";
-	char currPath[256];
+	char currArchivo[256];
 	struct stat s;
 
 	for(int j=0; j<recu; j++)
-		strcat(tabs, "\t");
+		strcat(tabs, "|\t");
 
 	//Abrir el directorio
 	dirp = opendir(path);
@@ -41,16 +41,12 @@ void imprimirDirectorio(char path[256], char opL, char opD, char opH, char opR){
 		return;
 	}
 
-	//Guardar el path actual
-	if (getcwd(currPath, sizeof(currPath)) == NULL) {
-		perror("getcwd() error");
-		return;
-	}
-	printf("currrPath: %s\n", currPath);
-	chdir(path);
 	while((direntp = readdir(dirp)) != NULL){
+		memset(currArchivo, '\0', sizeof(currArchivo));
+		strcpy(currArchivo, path);
+		strcat(strcat(currArchivo, "/"), direntp->d_name);
 		//Leer tipo
-		if( stat(direntp->d_name,&s) == 0 ){
+		if( stat(currArchivo,&s) == 0 ){
 			tipo = LetraTF(s.st_mode);
 		}
 		
@@ -63,13 +59,11 @@ void imprimirDirectorio(char path[256], char opL, char opD, char opH, char opR){
 				(strcmp(".", direntp->d_name)!=0) && 
 				(strcmp("..", direntp->d_name)!=0)
 			){
-				printf("%s %s %s \n",path, "/", direntp->d_name);
 				printf("%s%s:\n", tabs, direntp->d_name);
 				recu++;
-				imprimirDirectorio(strcat(strcat(path, "/"), direntp->d_name), opL, opD, opH, opR);
-				chdir(path);
+				imprimirDirectorio(currArchivo, opL, opD, opH, opR);
 				recu--;
-				printf("%s-------------------------\n", tabs);
+				//printf("%s-----------\n", tabs);
 			}else{
 				if(opL){
 					printf("%s%ld\t%ld\t%d\t%c\t%s\n", tabs, 
@@ -82,7 +76,6 @@ void imprimirDirectorio(char path[256], char opL, char opD, char opH, char opR){
 			}
 		}
 	}
-
 }
 
 int cmdList(int argc, char *argv[]){
