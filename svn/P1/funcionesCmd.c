@@ -1,5 +1,5 @@
 #include "funcionesCmd.h"
-#include "list.h"
+#include "funlist.h"
 
 node_t * CreateList(){
     node_t * head = NULL;

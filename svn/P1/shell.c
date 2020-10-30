@@ -15,7 +15,7 @@ telmo.fcorujo@udc.es    Telmo Fernandez Corujo
 #include <sys/stat.h>
 
 #include "funcionesCmd.h"
-#include "list.h"
+#include "funlist.h"
 
 struct datoCmd tablaComandos[] = {
     {"autores", cmdAutores},

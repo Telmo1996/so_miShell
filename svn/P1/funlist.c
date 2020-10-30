@@ -1,4 +1,4 @@
-#include "list.h"
+#include "funlist.h"
 
 int recu=0;
 
@@ -35,6 +35,19 @@ void imprimirDirectorio(char path[256], char opL, char opD, char opH, char opR){
 	for(int j=0; j<recu; j++)
 		strcat(tabs, "|\t");
 
+	//Comprobar si path corresponde a un directorio
+	if( stat(path,&s) == 0 ){
+		tipo = LetraTF(s.st_mode);
+	}else{
+		printf("NO");
+		return;
+	}
+	if(tipo != 'd'){
+		printf("no soy un dir");
+		//TODO sacar la imfo del archivo e imprimirla.
+		return;
+	}
+
 	//Abrir el directorio
 	dirp = opendir(path);
 	if(dirp == NULL){
@@ -64,7 +77,6 @@ void imprimirDirectorio(char path[256], char opL, char opD, char opH, char opR){
 				recu++;
 				imprimirDirectorio(currArchivo, opL, opD, opH, opR);
 				recu--;
-				//printf("%s-----------\n", tabs);
 			}else{
 				if(opL){
 					printf("%s%ld\t%ld\t%d\t%c\t%s\n", tabs, 
@@ -82,7 +94,8 @@ void imprimirDirectorio(char path[256], char opL, char opD, char opH, char opR){
 int cmdList(int argc, char *argv[]){
     char opL=0, opD=0, opH=0, opR=0;
 	char path[256];
-	int i;
+	char names[256][256];
+	int i, j, numNames=0;
 
 	//Comprobación de la opciones
     for(i=1; i<argc; i++){
@@ -90,21 +103,30 @@ int cmdList(int argc, char *argv[]){
         else if (strcmp(argv[i], "-dir") == 0) opD=1;
         else if (strcmp(argv[i], "-hid") == 0) opH=1;
         else if (strcmp(argv[i], "-rec") == 0) opR=1;
+		else{
+			strcpy(names[numNames], argv[i]);
+			numNames++;
+		}
     }
 
-	//Inicializar path con el directorio actual
-	if (getcwd(path, sizeof(path)) == NULL) {
-		perror("getcwd() error");
-		return 1;
+	if(numNames == 0){
+		//Inicializar path con el directorio actual
+		if (getcwd(path, sizeof(path)) == NULL) {
+			perror("getcwd() error");
+			return 1;
+		}
+
+		imprimirDirectorio(path, opL, opD, opH, opR);
+	}else{
+		for(j=0; j<numNames; j++){
+			printf("%s:\n", names[j]);
+			imprimirDirectorio(names[j], opL, opD, opH, opR);
+		}
 	}
 
 	//Imprimir la cabecera de la opción -long
 	if(opL)
 		printf("i-node\toffset\t\t\tlong\ttipo\tnombre\n");
-
-	
-	
-	imprimirDirectorio(path, opL, opD, opH, opR);
 
 	return 0;
 }
