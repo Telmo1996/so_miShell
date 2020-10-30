@@ -57,7 +57,8 @@ void imprimirDirectorio(char path[256], char opL, char opD, char opH, char opR){
 			if(tipo == 'd' && 
 				opD && 
 				(strcmp(".", direntp->d_name)!=0) && 
-				(strcmp("..", direntp->d_name)!=0)
+				(strcmp("..", direntp->d_name)!=0) &&
+				(opR || recu < 1)
 			){
 				printf("%s%s:\n", tabs, direntp->d_name);
 				recu++;
