@@ -64,6 +64,25 @@ char * ConvierteModo2 (mode_t m){
 	return (permisos);
 }
 
+void imprimirInfo(char opL, char *tabs, struct stat s, char *name){
+	char buff[100];
+	struct passwd *pwd;
+	struct group *grp;
+	if(opL){
+		//datelastmodified inodenumber owner group 
+		//mode_drwx_format size (number_of_links) name
+		strftime(buff, sizeof buff, "%b %d %H:%M", gmtime(&s.st_mtim.tv_sec));
+		pwd=getpwuid(s.st_uid);
+		grp=getgrgid(s.st_gid);
+		printf("%s%s\t%ld\t%s\t%s\t%s\t%ld\t(%ld)\t%s\n", tabs, 
+			buff, s.st_ino, pwd->pw_name, grp->gr_name,
+			ConvierteModo2(s.st_mode), s.st_size, s.st_nlink, name
+		);
+	}else{
+		printf("%s%ld\t%s\n", tabs, s.st_size, name);
+	}
+}
+
 void imprimirDirectorio(char path[256], char opL, char opD, char opH, char opR){
 	char muestra=0;
     DIR *dirp;
@@ -80,12 +99,11 @@ void imprimirDirectorio(char path[256], char opL, char opD, char opH, char opR){
 	if( stat(path,&s) == 0 ){
 		tipo = LetraTF(s.st_mode);
 	}else{
-		printf("NO");
+		printf("No esxiste: %s\n", path);
 		return;
 	}
 	if(tipo != 'd'){
-		printf("no soy un dir");
-		//TODO sacar la imfo del archivo e imprimirla.
+		imprimirInfo(opL, tabs, s, path);
 		return;
 	}
 
@@ -119,17 +137,7 @@ void imprimirDirectorio(char path[256], char opL, char opD, char opH, char opR){
 				imprimirDirectorio(currArchivo, opL, opD, opH, opR);
 				recu--;
 			}else{
-				if(opL){
-					//datelastmodified inodenumber owner group 
-					//mode_drwx_format size (number_of_links) name
-					printf("%lld.%.9ld", (long long)s.st_mtim.tv_sec, s.st_mtim.tv_nsec);
-					printf("%s%s\t%ld\t%d\t%d\t%s\t%ld\t%ld\t%s\n", tabs, 
-						/*s.st_mtim, */"hoy", s.st_ino, s.st_uid, s.st_gid, //TODO add fecha
-						ConvierteModo2(s.st_mode), s.st_size, s.st_nlink, direntp->d_name
-					);
-				}else{
-					printf("%s%ld\t%s\n", tabs, s.st_size, direntp->d_name);
-				}
+				imprimirInfo(opL, tabs, s, direntp->d_name);
 			}
 		}
 	}
@@ -165,6 +173,7 @@ int cmdList(int argc, char *argv[]){
 		for(j=0; j<numNames; j++){
 			printf("%s:\n", names[j]);
 			imprimirDirectorio(names[j], opL, opD, opH, opR);
+			if(j<numNames-1) printf("\n");
 		}
 	}
 
