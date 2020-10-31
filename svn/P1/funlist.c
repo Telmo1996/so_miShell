@@ -23,6 +23,47 @@ char LetraTF (mode_t m){
 	}
 }
 
+char * ConvierteModo (mode_t m, char *permisos){
+	strcpy (permisos,"---------- ");
+	
+	permisos[0]=LetraTF(m);
+	if (m&S_IRUSR) permisos[1]='r';  /*propietario*/
+	if (m&S_IWUSR) permisos[2]='w';
+	if (m&S_IXUSR) permisos[3]='x';
+	if (m&S_IRGRP) permisos[4]='r';   /*grupo*/
+	if (m&S_IWGRP) permisos[5]='w';
+	if (m&S_IXGRP) permisos[6]='x';
+	if (m&S_IROTH) permisos[7]='r';   /*resto*/
+	if (m&S_IWOTH) permisos[8]='w';
+	if (m&S_IXOTH) permisos[9]='x';
+	if (m&S_ISUID) permisos[3]='s';  /*setuid, setgid y stickybit*/
+	if (m&S_ISGID) permisos[6]='s';
+	if (m&S_ISVTX) permisos[9]='t';
+
+	return permisos;
+}
+
+char * ConvierteModo2 (mode_t m){
+	static char permisos[12];
+	strcpy (permisos,"---------- ");
+	
+	permisos[0]=LetraTF(m);
+	if (m&S_IRUSR) permisos[1]='r';  /*propietario*/
+	if (m&S_IWUSR) permisos[2]='w';
+	if (m&S_IXUSR) permisos[3]='x';
+	if (m&S_IRGRP) permisos[4]='r';   /*grupo*/
+	if (m&S_IWGRP) permisos[5]='w';
+	if (m&S_IXGRP) permisos[6]='x';
+	if (m&S_IROTH) permisos[7]='r';   /*resto*/
+	if (m&S_IWOTH) permisos[8]='w';
+	if (m&S_IXOTH) permisos[9]='x';
+	if (m&S_ISUID) permisos[3]='s';  /*setuid, setgid y stickybit*/
+	if (m&S_ISGID) permisos[6]='s';
+	if (m&S_ISVTX) permisos[9]='t';
+	
+	return (permisos);
+}
+
 void imprimirDirectorio(char path[256], char opL, char opD, char opH, char opR){
 	char muestra=0;
     DIR *dirp;
@@ -79,12 +120,15 @@ void imprimirDirectorio(char path[256], char opL, char opD, char opH, char opR){
 				recu--;
 			}else{
 				if(opL){
-					printf("%s%ld\t%ld\t%d\t%c\t%s\n", tabs, 
-						direntp->d_ino, direntp->d_off,
-						direntp->d_reclen, tipo, direntp->d_name
+					//datelastmodified inodenumber owner group 
+					//mode_drwx_format size (number_of_links) name
+					printf("%lld.%.9ld", (long long)s.st_mtim.tv_sec, s.st_mtim.tv_nsec);
+					printf("%s%s\t%ld\t%d\t%d\t%s\t%ld\t%ld\t%s\n", tabs, 
+						/*s.st_mtim, */"hoy", s.st_ino, s.st_uid, s.st_gid, //TODO add fecha
+						ConvierteModo2(s.st_mode), s.st_size, s.st_nlink, direntp->d_name
 					);
 				}else{
-					printf("%s%s\n", tabs, direntp->d_name);
+					printf("%s%ld\t%s\n", tabs, s.st_size, direntp->d_name);
 				}
 			}
 		}
@@ -123,10 +167,6 @@ int cmdList(int argc, char *argv[]){
 			imprimirDirectorio(names[j], opL, opD, opH, opR);
 		}
 	}
-
-	//Imprimir la cabecera de la opción -long
-	if(opL)
-		printf("i-node\toffset\t\t\tlong\ttipo\tnombre\n");
 
 	return 0;
 }
