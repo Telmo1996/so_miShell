@@ -1,4 +1,10 @@
-all: miShell list
+all: miShell list delete
+
+delete: delete.o fundelete.o funlist.o
+	gcc -o delete delete.o fundelete.o funlist.o
+
+delete.o: fundelete.h fundelete.c delete.c
+	gcc -c delete.c
 
 list: list.o funlist.o
 	gcc -o list list.o funlist.o
@@ -19,4 +25,4 @@ funlist.o: funlist.h funlist.c
 	gcc -c funlist.c
 
 clean:
-	rm -f miShell list *.o
+	rm -f miShell list delete *.o
