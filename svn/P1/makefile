@@ -4,25 +4,25 @@ delete: delete.o fundelete.o funlist.o
 	gcc -o delete delete.o fundelete.o funlist.o
 
 delete.o: fundelete.h fundelete.c delete.c
-	gcc -c delete.c
+	gcc -c -Wall delete.c
 
 list: list.o funlist.o
 	gcc -o list list.o funlist.o
 
 list.o: funlist.h funlist.c list.c
-	gcc -c list.c
+	gcc -c -Wall list.c
 
-miShell: shell.o funcionesCmd.o funlist.o
-	gcc -o miShell shell.o funcionesCmd.o funlist.o
+miShell: shell.o funcionesCmd.o funlist.o fundelete.o
+	gcc -o miShell shell.o funcionesCmd.o funlist.o fundelete.o
 
 shell.o: shell.c
-	gcc -c shell.c
+	gcc -c -Wall shell.c
 
 funcionesCmd.o: funcionesCmd.c funcionesCmd.h
-	gcc -c funcionesCmd.c
+	gcc -c -Wall funcionesCmd.c
 
 funlist.o: funlist.h funlist.c
-	gcc -c funlist.c
+	gcc -c -Wall funlist.c
 
 clean:
 	rm -f miShell list delete *.o

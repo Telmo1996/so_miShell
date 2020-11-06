@@ -16,6 +16,7 @@ telmo.fcorujo@udc.es    Telmo Fernandez Corujo
 
 #include "funcionesCmd.h"
 #include "funlist.h"
+#include "fundelete.h"
 
 struct datoCmd tablaComandos[] = {
     {"autores", cmdAutores},
@@ -32,14 +33,13 @@ struct datoCmd tablaComandos[] = {
     {"historic",cmdHistoric},
     {"create",cmdCreate},
 	{"list", cmdList},
+	{"delete", cmdDelete},
     {NULL, NULL}
 };
 
 int main(int argc, char *argv[]) {
     int ntrozos=0,i;
-	char* lineaHistoric;
 	lista = CreateList();
-	char* test = "sooy un test";
 
     while (true){
         printf("@");
@@ -47,20 +47,26 @@ int main(int argc, char *argv[]) {
         printf("> ");
 
         if(fgets(linea, MAXLINEA, stdin)==NULL) exit(0);
-		InsertElement(linea, lista);
-        ntrozos=TrocearCadena(linea, trozos);
-        for (i=0; ;i++){
-            if (tablaComandos[i].nombre==NULL){
-                printf("no entiendo\n");
-                break;
-            }
-            if (strcmp(tablaComandos[i].nombre, trozos[0])==0){
-				
-                tablaComandos[i].fun(ntrozos, trozos);
-                break;
-            }
-        }
+		if(strcmp("\n", linea)!=0){
+			InsertElement(linea, lista);
+			ntrozos=TrocearCadena(linea, trozos);
+			for (i=0; ;i++){
+				if (tablaComandos[i].nombre==NULL){
+					printf("no entiendo\n");
+					break;
+				}
+				if (strcmp(tablaComandos[i].nombre, trozos[0])==0){
+					
+					tablaComandos[i].fun(ntrozos, trozos);
+					break;
+				}
+			}
+		}else{
+			printf("escribe algo\n");
+		}
     }
+
+	free(lista);
 
     return 0;
 }

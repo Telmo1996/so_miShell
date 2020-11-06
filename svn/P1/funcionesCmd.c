@@ -1,5 +1,6 @@
 #include "funcionesCmd.h"
 #include "funlist.h"
+#include "fundelete.h"
 
 node_t * CreateList(){
     node_t * head = NULL;
@@ -36,15 +37,18 @@ int mi_regex(char * regexString, char * cadena){
 
     reti = regexec(&regex, cadena, 0, NULL, 0);
     if (!reti) {
+		regfree(&regex);
         return(1);
     }
     else if (reti == REG_NOMATCH) {
-        return(0);
+		regfree(&regex);
+		return(0);
     }
     else {
-    regerror(reti, &regex, msgbuf, sizeof(msgbuf));
-    fprintf(stderr, "Regex match failed: %s\n", msgbuf);
-    exit(1);
+		regerror(reti, &regex, msgbuf, sizeof(msgbuf));
+		fprintf(stderr, "Regex match failed: %s\n", msgbuf);
+		regfree(&regex);
+		exit(1);
     }
     regfree(&regex);
 
@@ -59,6 +63,7 @@ void InsertElement(char *valor ,node_t * head){
     /* now we can add a new variable */
     current->next = (node_t *) malloc(sizeof(node_t));
     current->next->val = strdup(valor);
+	free(valor);
     current->next->next = NULL;
 }
 
@@ -263,6 +268,7 @@ int cmdHistoric(int argc, char *argv[]){
 		{"historic",cmdHistoric},
 		{"create",cmdCreate},
 		{"list",cmdList},
+		{"delete",cmdDelete},
 		{NULL, NULL}
 	};
 
@@ -301,8 +307,6 @@ int cmdHistoric(int argc, char *argv[]){
 				current = current->next;
 				cmdNum++;
 			}
-			//printf("%d,%d\n", n, cmdNum);
-			//printf("comando: %s\n",current->val);
 			ntrozos=TrocearCadena(current->val, trozos);
 			for (j=0; ;j++){
 		        if (tablaComandos[j].nombre==NULL){
@@ -314,6 +318,8 @@ int cmdHistoric(int argc, char *argv[]){
 		            break;
 		        }
 		    }
+
+			strcat(current->val, "\n");
 		}else{
 			print_list(lista, 0);
 		}
