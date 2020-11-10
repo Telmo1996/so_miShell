@@ -63,7 +63,7 @@ void InsertElement(char *valor ,node_t * head){
     /* now we can add a new variable */
     current->next = (node_t *) malloc(sizeof(node_t));
     current->next->val = strdup(valor);
-	free(valor);
+	//free(valor);
     current->next->next = NULL;
 }
 
