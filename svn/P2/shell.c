@@ -17,6 +17,7 @@ telmo.fcorujo@udc.es    Telmo Fernandez Corujo
 #include "funcionesCmd.h"
 #include "funlist.h"
 #include "fundelete.h"
+#include "funmemory.h"
 
 struct datoCmd tablaComandos[] = {
     {"autores", cmdAutores},
@@ -34,6 +35,12 @@ struct datoCmd tablaComandos[] = {
     {"create",cmdCreate},
 	{"list", cmdList},
 	{"delete", cmdDelete},
+	{"memory", cmdMemory},
+	{"memdump", cmdMemdump},
+	{"memfill", cmdMemfill},
+	{"recurse", cmdRecurse},
+	{"readfile", cmdReadfile},
+	{"writefile", cmdWritefile},
     {NULL, NULL}
 };
 

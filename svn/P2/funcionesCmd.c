@@ -1,6 +1,7 @@
 #include "funcionesCmd.h"
 #include "funlist.h"
 #include "fundelete.h"
+#include "funmemory.h"
 
 node_t * CreateList(){
     node_t * head = NULL;
@@ -269,6 +270,11 @@ int cmdHistoric(int argc, char *argv[]){
 		{"create",cmdCreate},
 		{"list",cmdList},
 		{"delete",cmdDelete},
+		{"memory",cmdMemory},
+		{"memdump", cmdMemory},
+		{"memfill", cmdMemfill},
+		{"recurse", cmdRecurse},
+		{"writefile", cmdWritefile},
 		{NULL, NULL}
 	};
 
