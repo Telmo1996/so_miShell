@@ -1,3 +1,6 @@
+//#ifndef funcionesCmd_h_INCLUDED
+//#define funcionesCmd_h_INCLUDED
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -44,3 +47,5 @@ int cmdTime(int, char**);
 int cmdChdir(int, char**);
 int cmdCreate(int, char**);
 int cmdHistoric(int, char**);
+
+#endif

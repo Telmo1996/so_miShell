@@ -14,6 +14,7 @@ int cmdMemory(int argc, char *argv[]){
 	char opMm=0;	//mmap
 	char opCs=0;	//createshared
 	char opSh=0;	//shared
+	char opAll=0;	//all
 
 	int i;
 
@@ -30,7 +31,19 @@ int cmdMemory(int argc, char *argv[]){
         else if (strcmp(argv[i], "-mmap")) opMm=1;
         else if (strcmp(argv[i], "-createshared")) opCs=1;
         else if (strcmp(argv[i], "-shared")) opSh=1;
+        else if (strcmp(argv[i], "-all")) opAll=1;
     }
+	//Comprobar que las opciones sean validas
+	if(opA+opD+opDlt+opS+opSv+opSf+opP+opDo > 1){
+		printf("Opciones incompatibles\n");
+		return 1;
+	}
+	if(opMa+opMm+opCs+opSh+opAll > 1){
+		printf("Opciones incompatibles\n");
+		return 1;
+	}
+
+	printPwd();	
 
 
 	return 0;

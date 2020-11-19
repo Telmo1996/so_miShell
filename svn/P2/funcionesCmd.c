@@ -6,9 +6,6 @@
 node_t * CreateList(){
     node_t * head = NULL;
     head = (node_t *) malloc(sizeof(node_t));
-    /*if (head == NULL) {
-        return 1;
-    }*/
 
     head->val = "";
     head->next = NULL;
