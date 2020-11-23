@@ -1,5 +1,5 @@
-//#ifndef funcionesCmd_h_INCLUDED
-//#define funcionesCmd_h_INCLUDED
+#ifndef funcionesCmd_h_INCLUDED
+#define funcionesCmd_h_INCLUDED
 
 #include <stdio.h>
 #include <stdlib.h>

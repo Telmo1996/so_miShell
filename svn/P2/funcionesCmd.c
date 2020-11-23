@@ -107,8 +107,8 @@ int cmdAutores(int argc, char *argv[]){
 	char opL=0, opN=0;
 	int i;
 	for(i=1; i<argc; i++){
-		if (strcmp(argv[i], "-l")) opL=1;
-        else if (strcmp(argv[i], "-n")) opN=1;
+		if (strcmp(argv[i], "-l")==0) opL=1;
+        else if (strcmp(argv[i], "-n")==0) opN=1;
     }
     if (argc==1) opL=opN=1;
 

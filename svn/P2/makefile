@@ -25,7 +25,7 @@ funlist.o: funlist.h funlist.c
 	gcc -c -Wall funlist.c
 
 funmemory.o: funmemory.h funmemory.c funcionesCmd.h
-	gcc -c -Wall funmemory.c funcionesCmd.o
+	gcc -c -Wall funmemory.c
 
 clean:
 	rm -f miShell list delete *.o

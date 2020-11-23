@@ -1,5 +1,36 @@
 #include "funmemory.h"
 
+
+memNode_t * memCreateList(){
+	memNode_t * head = NULL;
+	head = (memNode_t *) malloc(sizeof(memNode_t));
+
+	head->puntero = NULL;
+	head->fecha = "";
+	head->tam = 0;
+	head->tipo = '_';
+	head->next = NULL;
+
+	return head;
+}
+
+void memInsertElement(void *puntero, int tam, char tipo ,memNode_t * head){
+	memNode_t * current = head;
+	time_t tiempo=time(0);
+	struct tm *tlocal=localtime(&tiempo);
+	char charTime[128];
+	strftime(charTime,128,"%d/%m/%y", tlocal);
+
+	while (current->next != NULL){
+		current = current->next;
+	}
+	current->next=(memNode_t *) malloc(sizeof(memNode_t));
+	current->next->puntero = puntero;
+	current->next->fecha = charTime;
+	current->next->tam = tam;
+	current->next->tipo = tipo;
+}
+
 int cmdMemory(int argc, char *argv[]){
 	char opA=0;		//allocate
 	char opD=0;		//dealloc
@@ -17,25 +48,30 @@ int cmdMemory(int argc, char *argv[]){
 	char opAll=0;	//all
 
 	int i;
+	int tam;
+
+	void * puntero;
 
     for(i=1; i<argc; i++){
-        if (strcmp(argv[i], "-allocate")) opA=1;
-        else if (strcmp(argv[i], "-dealloc")) opD=1;
-        else if (strcmp(argv[i], "-deletekey")) opDlt=1;
-        else if (strcmp(argv[i], "-show")) opS=1;
-        else if (strcmp(argv[i], "-show-vars")) opSv=1;
-        else if (strcmp(argv[i], "-show-funcs")) opSf=1;
-        else if (strcmp(argv[i], "-pmap")) opP=1;
-        else if (strcmp(argv[i], "-dopmap")) opDo=1;
-        else if (strcmp(argv[i], "-malloc")) opMa=1;
-        else if (strcmp(argv[i], "-mmap")) opMm=1;
-        else if (strcmp(argv[i], "-createshared")) opCs=1;
-        else if (strcmp(argv[i], "-shared")) opSh=1;
-        else if (strcmp(argv[i], "-all")) opAll=1;
+        if (strcmp(argv[i], "-allocate")==0) opA=1;
+        else if (strcmp(argv[i], "-dealloc")==0) opD=1;
+        else if (strcmp(argv[i], "-deletekey")==0) opDlt=1;
+        else if (strcmp(argv[i], "-show")==0) opS=1;
+        else if (strcmp(argv[i], "-show-vars")==0) opSv=1;
+        else if (strcmp(argv[i], "-show-funcs")==0) opSf=1;
+        else if (strcmp(argv[i], "-pmap")==0) opP=1;
+        else if (strcmp(argv[i], "-dopmap")==0) opDo=1;
+        else if (strcmp(argv[i], "-malloc")==0) opMa=1;
+        else if (strcmp(argv[i], "-mmap")==0) opMm=1;
+        else if (strcmp(argv[i], "-createshared")==0) opCs=1;
+        else if (strcmp(argv[i], "-shared")==0) opSh=1;
+        else if (strcmp(argv[i], "-all")==0) opAll=1;
     }
+	printf("%d%d%d%d%d%d%d%d %d%d%d%d%d\n", opA,opD,opDlt,opS,opSv,opSf,opP,opDo,
+		opMa,opMm,opCs,opSh,opAll);
 	//Comprobar que las opciones sean validas
 	if(opA+opD+opDlt+opS+opSv+opSf+opP+opDo > 1){
-		printf("Opciones incompatibles\n");
+		printf("Modos incompatibles\n");
 		return 1;
 	}
 	if(opMa+opMm+opCs+opSh+opAll > 1){
@@ -43,8 +79,19 @@ int cmdMemory(int argc, char *argv[]){
 		return 1;
 	}
 
-	printPwd();	
-
+	if(opA && opMa){
+		if(argc <= 3){
+		
+		}else if(argc == 4){
+			tam = atoi(argv[3]);
+			puntero = (void *)malloc(tam);
+			memInsertElement(puntero, tam, 'a', memLista);
+			printf("Allocated %d at %u\n", tam, tam);
+		}else{
+			printf("Argumentos incorrectos\n");
+			return 1;
+		}
+	}
 
 	return 0;
 }
