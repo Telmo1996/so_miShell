@@ -1,6 +1,38 @@
 #include "funmemory.h"
 
 
+void * MmapFichero (char * fichero, int protection){
+	int df, map=MAP_PRIVATE,modo=O_RDONLY;
+	struct stat s;
+	void *p;
+	if (protection&PROT_WRITE)  modo=O_RDWR;
+	if (stat(fichero,&s)==-1 || (df=open(fichero, modo))==-1)
+		return NULL;
+	if ((p=mmap (NULL,s.st_size, protection,map,df,0))==MAP_FAILED)return NULL;
+	
+	/*Guardar Direccion de Mmap (p, s.st_size,fichero,df......);*/
+	return p;
+}
+
+void Cmd_AllocateMmap (char *arg[]){ /*arg[0] is the file name
+									   arg[1] are the permissions*/
+	char *perm;
+	void *p;
+	int protection=0;
+	if (arg[0]==NULL){
+		/*Listar Direcciones de Memoria mmap;*/ return;
+	}
+	if ((perm=arg[1])!=NULL && strlen(perm)<4) {
+		if (strchr(perm,'r')!=NULL) protection|=PROT_READ;
+		if (strchr(perm,'w')!=NULL) protection|=PROT_WRITE;
+		if (strchr(perm,'x')!=NULL) protection|=PROT_EXEC;
+	}
+	if ((p=MmapFichero(arg[0],protection))==NULL)
+		perror ("Imposible mapear fichero");
+	else
+		printf ("fichero %s mapeado en %p\n", arg[0], p);
+}
+
 int cmdMemory(int argc, char *argv[]){
 	char opA=0;		//allocate
 	char opD=0;		//dealloc
@@ -21,6 +53,8 @@ int cmdMemory(int argc, char *argv[]){
 	int tam;
 
 	void * puntero;
+
+	char *arg[2];
 
     for(i=1; i<argc; i++){
         if (strcmp(argv[i], "-allocate")==0) opA=1;
@@ -49,7 +83,7 @@ int cmdMemory(int argc, char *argv[]){
 		return 1;
 	}
 
-	if(opA && opMa){
+	if(opA && opMa){		//-allocate -malloc
 		if(argc <= 3){
 			printf("Imprimiento lista:\n");
 			memPrintList(memLista, 'a');
@@ -62,6 +96,12 @@ int cmdMemory(int argc, char *argv[]){
 			printf("Argumentos incorrectos\n");
 			return 1;
 		}
+	}
+
+	if(opA && opMm){		//-allocate -mmap
+		arg[0]="filename";
+		arg[1]="rwx";
+		Cmd_AllocateMmap(arg);
 	}
 
 	return 0;
