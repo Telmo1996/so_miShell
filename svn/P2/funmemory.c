@@ -25,10 +25,21 @@ void memInsertElement(void *puntero, int tam, char tipo ,memNode_t * head){
 		current = current->next;
 	}
 	current->next=(memNode_t *) malloc(sizeof(memNode_t));
+	current->next->next=NULL;
 	current->next->puntero = puntero;
 	current->next->fecha = charTime;
 	current->next->tam = tam;
 	current->next->tipo = tipo;
+}
+
+void memPrintList(memNode_t * head, char modo) {
+    memNode_t * current = head->next;
+
+    while (current != NULL) {
+        printf("%p:\tsize:%d\t%c\t%s\n",
+			current->puntero, current->tam, current->tipo, current->fecha);
+        current = current->next;
+    }
 }
 
 int cmdMemory(int argc, char *argv[]){
@@ -81,7 +92,8 @@ int cmdMemory(int argc, char *argv[]){
 
 	if(opA && opMa){
 		if(argc <= 3){
-		
+			printf("Imprimiento lista:\n");
+			memPrintList(memLista, 'a');
 		}else if(argc == 4){
 			tam = atoi(argv[3]);
 			puntero = (void *)malloc(tam);
