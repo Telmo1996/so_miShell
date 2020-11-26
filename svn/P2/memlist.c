@@ -39,10 +39,27 @@ void memInsertElement(void *puntero, int tam, char tipo ,memNode_t * head){
 
 void memPrintList(memNode_t * head, char modo) {
     memNode_t * current = head->next;
+    char *tipoBonitoA = "malloc";
+    char *tipoBonitoS = "shared";
+    char *tipoBonitoM = "mapped";
+
 
     while (current != NULL) {
-        printf("%p:\tsize:%d\t%c\t%s\n",
-            current->puntero, current->tam, current->tipo, current->fecha);
+        if(current->tipo=='a'){
+        printf("%p:\tsize:%d\t%s\t%s\n",
+            current->puntero, current->tam, tipoBonitoA, current->fecha);
+        
+        }
+        if(current->tipo=='s'){
+        printf("%p:\tsize:%d\t%s\t%s\n",
+            current->puntero, current->tam, tipoBonitoS, current->fecha);
+        
+        }
+        if(current->tipo=='m'){
+        printf("%p:\tsize:%d\t%s\t%s\n",
+            current->puntero, current->tam, tipoBonitoM, current->fecha);
+        
+        }
         current = current->next;
     }
 }
