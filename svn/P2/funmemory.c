@@ -1,5 +1,48 @@
 #include "funmemory.h"
 
+void * ObtenerMemoriaShmget (key_t clave, size_t tam){
+	void * p;
+	int aux,id,flags=0777;
+	struct shmid_ds s;
+
+	if (tam) /*si tam no es 0 la crea en modo exclusivo */
+		flags=flags | IPC_CREAT | IPC_EXCL;
+	/*si tam es 0 intenta acceder a una ya creada*/
+	if (clave==IPC_PRIVATE) /*no nos vale*/
+		{errno=EINVAL; return NULL;}
+	if ((id=shmget(clave, tam, flags))==-1)
+		return (NULL);
+	if ((p=shmat(id,NULL,0))==(void*) -1){
+		aux=errno; /*si se ha creado y no se puede mapear*/
+		if (tam) /*se borra */
+			shmctl(id,IPC_RMID,NULL);
+		errno=aux;
+		return (NULL);
+	}
+	shmctl (id,IPC_STAT,&s);
+	/* Guardar En Direcciones de Memoria Shared (p, s.shm_segsz, clave.....);*/
+	memInsertElement(p, s.shm_segsz, 's', memLista);
+	return (p);
+}
+
+void Cmd_AlocateCreateShared (char *arg[]){ /*arg[0] is the key and arg[1] is the size*/
+	key_t k;
+	size_t tam=0;
+	void *p;
+
+	if (arg[0]==NULL || arg[1]==NULL){
+		/*Listar Direcciones de Memoria Shared */ 
+		memPrintList(memLista, 's');
+		return;
+	}
+	k=(key_t) atoi(arg[0]);
+	if (arg[1]!=NULL)
+		tam=(size_t) atoll(arg[1]);
+	if ((p=ObtenerMemoriaShmget(k,tam))==NULL)
+		perror ("Imposible obtener memoria shmget");
+	else
+		printf ("Memoria de shmget de clave %d asignada en %p\n",k,p);
+}
 
 void * MmapFichero (char * fichero, int protection){
 	int df, map=MAP_PRIVATE,modo=O_RDONLY;
@@ -102,9 +145,17 @@ int cmdMemory(int argc, char *argv[]){
 	}
 
 	if(opA && opMm){		//-allocate -mmap
-		arg[0]=argv[3];
-		arg[1]=argv[4];
+		arg[0] = argv[3];
+		arg[1] = argv[4];
+		arg[2] = NULL;
 		Cmd_AllocateMmap(arg);
+	}
+
+	if(opA && opCs){		//-allocate -createshared
+		arg[0] = argv[3];
+		arg[1] = argv[4];
+		arg[2] = NULL;
+		Cmd_AlocateCreateShared(arg);
 	}
 
 	return 0;
