@@ -11,6 +11,7 @@ void * MmapFichero (char * fichero, int protection){
 	if ((p=mmap (NULL,s.st_size, protection,map,df,0))==MAP_FAILED)return NULL;
 	
 	/*Guardar Direccion de Mmap (p, s.st_size,fichero,df......);*/
+	memInsertElement(p, s.st_size, 'm', memLista);
 	return p;
 }
 
@@ -20,7 +21,9 @@ void Cmd_AllocateMmap (char *arg[]){ /*arg[0] is the file name
 	void *p;
 	int protection=0;
 	if (arg[0]==NULL){
-		/*Listar Direcciones de Memoria mmap;*/ return;
+		/*Listar Direcciones de Memoria mmap;*/ 
+		memPrintList(memLista, 'm');
+		return;
 	}
 	if ((perm=arg[1])!=NULL && strlen(perm)<4) {
 		if (strchr(perm,'r')!=NULL) protection|=PROT_READ;
@@ -99,8 +102,8 @@ int cmdMemory(int argc, char *argv[]){
 	}
 
 	if(opA && opMm){		//-allocate -mmap
-		arg[0]="filename";
-		arg[1]="rwx";
+		arg[0]=argv[3];
+		arg[1]=argv[4];
 		Cmd_AllocateMmap(arg);
 	}
 
