@@ -21,7 +21,7 @@ void * ObtenerMemoriaShmget (key_t clave, size_t tam){
 	}
 	shmctl (id,IPC_STAT,&s);
 	/* Guardar En Direcciones de Memoria Shared (p, s.shm_segsz, clave.....);*/
-	memInsertElement(p, s.shm_segsz, 's', memLista);
+	memInsertElement(p, s.shm_segsz, "", 0, 's', memLista);
 	return (p);
 }
 
@@ -54,7 +54,7 @@ void * MmapFichero (char * fichero, int protection){
 	if ((p=mmap (NULL,s.st_size, protection,map,df,0))==MAP_FAILED)return NULL;
 	
 	/*Guardar Direccion de Mmap (p, s.st_size,fichero,df......);*/
-	memInsertElement(p, s.st_size, 'm', memLista);
+	memInsertElement(p, s.st_size, fichero, df, 'm', memLista);
 	return p;
 }
 
@@ -83,8 +83,9 @@ void Cmd_DeallocMalloc(char* tamChar){
 	int tam;
 	memNode_t* current=memLista;
 	memNode_t* previous=NULL;
+	
 	if(tamChar==NULL){
-		//TODO print list
+		memPrintList(memLista, 'a');
 		return;
 	}
 	tam=atoi(tamChar);
@@ -96,6 +97,28 @@ void Cmd_DeallocMalloc(char* tamChar){
 		previous=current;
 		current=current->next;
 	}
+
+	memPrintList(memLista, 'a');
+}
+
+void Cmd_DeallocMmap(char* fich){
+	memNode_t* current=memLista;
+	memNode_t* previous=NULL;
+
+	if(fich==NULL){
+		memPrintList(memLista, 'm');
+		return;
+	}
+	while(current->next != NULL){
+		if(current->tipo == 'm' && (strcmp(current->fich, fich)==0)){
+			memDeleteNode(previous);
+			return;
+		}
+		previous=current;
+		current=current->next;
+	}
+
+	memPrintList(memLista, 'm');
 }
 
 int cmdMemory(int argc, char *argv[]){
@@ -105,7 +128,6 @@ int cmdMemory(int argc, char *argv[]){
 	char opS=0;		//show
 	char opSv=0;	//show-vars
 	char opSf=0;	//show-funcs
-	char opP=0;		//pmap
 	char opDo=0;	//dopmap
 
 	char opMa=0;	//malloc
@@ -116,6 +138,7 @@ int cmdMemory(int argc, char *argv[]){
 
 	int i;
 	int tam;
+	int sumOpMain, sumOpExtra;
 
 	void * puntero;
 
@@ -128,7 +151,6 @@ int cmdMemory(int argc, char *argv[]){
         else if (strcmp(argv[i], "-show")==0) opS=1;
         else if (strcmp(argv[i], "-show-vars")==0) opSv=1;
         else if (strcmp(argv[i], "-show-funcs")==0) opSf=1;
-        else if (strcmp(argv[i], "-pmap")==0) opP=1;
         else if (strcmp(argv[i], "-dopmap")==0) opDo=1;
         else if (strcmp(argv[i], "-malloc")==0) opMa=1;
         else if (strcmp(argv[i], "-mmap")==0) opMm=1;
@@ -136,14 +158,16 @@ int cmdMemory(int argc, char *argv[]){
         else if (strcmp(argv[i], "-shared")==0) opSh=1;
         else if (strcmp(argv[i], "-all")==0) opAll=1;
     }
-	printf("%d%d%d%d%d%d%d%d %d%d%d%d%d\n", opA,opD,opDlt,opS,opSv,opSf,opP,opDo,
+	printf("%d%d%d%d%d%d%d %d%d%d%d%d\n", opA,opD,opDlt,opS,opSv,opSf,opDo,
 		opMa,opMm,opCs,opSh,opAll);
 	//Comprobar que las opciones sean validas
-	if(opA+opD+opDlt+opS+opSv+opSf+opP+opDo > 1){
+	sumOpMain=opA+opD+opDlt+opS+opSv+opSf+opDo;
+	if(sumOpMain > 1){
 		printf("Modos incompatibles\n");
 		return 1;
 	}
-	if(opMa+opMm+opCs+opSh+opAll > 1){
+	sumOpExtra=opMa+opMm+opCs+opSh+opAll;
+	if(sumOpExtra > 1){
 		printf("Opciones incompatibles\n");
 		return 1;
 	}
@@ -155,7 +179,7 @@ int cmdMemory(int argc, char *argv[]){
 		}else if(argc == 4){
 			tam = atoi(argv[3]);
 			puntero = (void *)malloc(tam);
-			memInsertElement(puntero, tam, 'a', memLista);
+			memInsertElement(puntero, tam, "", 0, 'a', memLista);
 			printf("Allocated %d at %p\n", tam, puntero);
 		}else{
 			printf("Argumentos incorrectos\n");
@@ -179,7 +203,6 @@ int cmdMemory(int argc, char *argv[]){
 
 	if(opA && opSh){		//-allocate -shared
 		//TODO
-		printf("TODO");
 	}
 
 	if(opD && argc==2){		//-dealloc
@@ -190,6 +213,55 @@ int cmdMemory(int argc, char *argv[]){
 	if(opD && opMa){		//-dealloc -malloc
 		Cmd_DeallocMalloc(argv[3]);
 	}
+
+	if(opD && opMm){		//-dealloc -mmap
+		Cmd_DeallocMmap(argv[3]);
+	}
+
+	if(opD && opSh){		//-dealloc -shared
+		//TODO
+	}
+
+	if(opD && argc==3 && sumOpExtra==0){		//-dealloc addr
+		//TODO
+	}
+
+	if(opDlt && argc==3 && sumOpExtra==0){		//-deletekey cl
+		//TODO
+	}
+
+	if(opS && argc==2){		//-show
+		//TODO
+	}
+
+	if(opS && opMa){		//-show -malloc
+		//TODO
+	}
+
+	if(opS && opSh){		//-show -shared
+		//TODO
+	}
+
+	if(opS && opMm){		//-show -mmap
+		//TODO
+	}
+
+	if(opS && opAll){		//-show -all
+		//TODO
+	}
+
+	if(opSv){		//-show-vars
+		//TODO
+	}
+
+	if(opSf){		//-show-funcs
+		//TODO
+	}
+
+	if(opDo){		//-dopmap
+		//TODO
+	}
+
 
 	return 0;
 }

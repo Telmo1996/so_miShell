@@ -7,6 +7,8 @@ memNode_t * memCreateList(){
     head->puntero = NULL;
     head->fecha = "";
     head->tam = 0;
+	head->fich = "";
+	head->df = 0;
     head->tipo = '_';
     head->next = NULL;
 
@@ -19,7 +21,9 @@ void timeMemory(char out[128]){
 	strftime(out,128,"%H:%M:%S %d/%m/%y", tlocal);
 }
 
-void memInsertElement(void *puntero, int tam, char tipo ,memNode_t * head){
+void memInsertElement(
+	void *puntero, int tam, char* fich, int df, char tipo ,memNode_t * head)
+{
     memNode_t * current = head;
     char out[128];
     
@@ -32,6 +36,8 @@ void memInsertElement(void *puntero, int tam, char tipo ,memNode_t * head){
     current->next->puntero = puntero;
     current->next->fecha = strdup(out);
     current->next->tam = tam;
+	current->next->fich = strdup(fich);
+	current->next->df = df;
     current->next->tipo = tipo;
 }
 
@@ -55,8 +61,9 @@ void memPrintList(memNode_t * head, char modo) {
         
         }
         if(current->tipo=='m' || current->tipo=='t'){
-        printf("%p:\tsize:%d\t%s\t%s\n",
-            current->puntero, current->tam, tipoBonitoM, current->fecha);
+        printf("%p:\tsize:%d\t%s\t%s\t(fd:%d)\t%s\n",
+            current->puntero, current->tam, tipoBonitoM, current->fich,
+			current->df, current->fecha);
         
         }
         current = current->next;
@@ -70,5 +77,7 @@ void memDeleteNode(memNode_t * previous){	//Borra el nodo siguiente al que se pa
 	previous->next = current->next;
 
 	//Borrar current
+	free(current->fecha);
+	free(current->fich);
 	free(current);
 }
