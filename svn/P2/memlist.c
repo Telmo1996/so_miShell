@@ -43,23 +43,32 @@ void memPrintList(memNode_t * head, char modo) {
     char *tipoBonitoS = "shared";
     char *tipoBonitoM = "mapped";
 
-
     while (current != NULL) {
-        if(current->tipo=='a'){
+        if(current->tipo=='a' || current->tipo=='t'){
         printf("%p:\tsize:%d\t%s\t%s\n",
             current->puntero, current->tam, tipoBonitoA, current->fecha);
         
         }
-        if(current->tipo=='s'){
+        if(current->tipo=='s' || current->tipo=='t'){
         printf("%p:\tsize:%d\t%s\t%s\n",
             current->puntero, current->tam, tipoBonitoS, current->fecha);
         
         }
-        if(current->tipo=='m'){
+        if(current->tipo=='m' || current->tipo=='t'){
         printf("%p:\tsize:%d\t%s\t%s\n",
             current->puntero, current->tam, tipoBonitoM, current->fecha);
         
         }
         current = current->next;
     }
+}
+
+void memDeleteNode(memNode_t * previous){	//Borra el nodo siguiente al que se pasa
+	memNode_t* current = previous->next;
+
+	//Lincar al siguiente nodo
+	previous->next = current->next;
+
+	//Borrar current
+	free(current);
 }

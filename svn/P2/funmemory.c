@@ -79,6 +79,25 @@ void Cmd_AllocateMmap (char *arg[]){ /*arg[0] is the file name
 		printf ("fichero %s mapeado en %p\n", arg[0], p);
 }
 
+void Cmd_DeallocMalloc(char* tamChar){
+	int tam;
+	memNode_t* current=memLista;
+	memNode_t* previous=NULL;
+	if(tamChar==NULL){
+		//TODO print list
+		return;
+	}
+	tam=atoi(tamChar);
+	while(current->next != NULL){
+		if(current->tipo == 'a' && current->tam == tam){
+			memDeleteNode(previous);
+			return;
+		}
+		previous=current;
+		current=current->next;
+	}
+}
+
 int cmdMemory(int argc, char *argv[]){
 	char opA=0;		//allocate
 	char opD=0;		//dealloc
@@ -156,6 +175,20 @@ int cmdMemory(int argc, char *argv[]){
 		arg[1] = argv[4];
 		arg[2] = NULL;
 		Cmd_AlocateCreateShared(arg);
+	}
+
+	if(opA && opSh){		//-allocate -shared
+		//TODO
+		printf("TODO");
+	}
+
+	if(opD && argc==2){		//-dealloc
+		memPrintList(memLista, 't');
+
+	}
+
+	if(opD && opMa){		//-dealloc -malloc
+		Cmd_DeallocMalloc(argv[3]);
 	}
 
 	return 0;

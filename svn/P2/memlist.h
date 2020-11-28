@@ -8,7 +8,7 @@ typedef struct memNode {
     void *puntero;
     char *fecha;
     int tam;
-    char tipo; // a->malloc s->shared m->mapped
+    char tipo; // a->malloc s->shared m->mapped t->todo
 } memNode_t;
 
 memNode_t * memLista;
@@ -16,3 +16,4 @@ memNode_t * memLista;
 memNode_t * memCreateList();
 void memInsertElement(void*, int, char, memNode_t *);
 void memPrintList(memNode_t *, char);
+void memDeleteNode(memNode_t *);
