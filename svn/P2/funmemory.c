@@ -121,6 +121,23 @@ void Cmd_DeallocMmap(char* fich){
 	memPrintList(memLista, 'm');
 }
 
+void Cmd_dopmap (char *args[]) /*no arguments necessary*/
+{ pid_t pid;
+	char elpid[32];
+	char *argv[3]={"pmap",elpid,NULL};
+
+	sprintf (elpid,"%d", (int) getpid());
+	if ((pid=fork())==-1){
+		perror ("Imposible crear proceso");
+		return;
+	}if (pid==0){
+		if (execvp(argv[0],argv)==-1)
+			perror("cannot execute pmap");
+		exit(1);
+	}
+	waitpid (pid,NULL,0);
+}
+
 int cmdMemory(int argc, char *argv[]){
 	char opA=0;		//allocate
 	char opD=0;		//dealloc
@@ -259,7 +276,8 @@ int cmdMemory(int argc, char *argv[]){
 	}
 
 	if(opDo){		//-dopmap
-		//TODO
+		args[0]=NULL;
+		Cmd_dopmap(args);
 	}
 
 
