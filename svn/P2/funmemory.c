@@ -235,19 +235,19 @@ int cmdMemory(int argc, char *argv[]){
 	}
 
 	if(opS && opMa){		//-show -malloc
-		//TODO
+		memPrintList(memLista,'a');
 	}
 
 	if(opS && opSh){		//-show -shared
-		//TODO
+		memPrintList(memLista,'s');
 	}
 
 	if(opS && opMm){		//-show -mmap
-		//TODO
+		memPrintList(memLista,'m');
 	}
 
 	if(opS && opAll){		//-show -all
-		//TODO
+		memPrintList(memLista,'t');
 	}
 
 	if(opSv){		//-show-vars
