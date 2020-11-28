@@ -138,6 +138,24 @@ void Cmd_dopmap (char *args[]) /*no arguments necessary*/
 	waitpid (pid,NULL,0);
 }
 
+void Cmd_deletekey (char *args[]) /*arg[0] points to a str containing the key*/
+{
+	key_t clave;
+	int id;
+	char *key=args[0];
+
+	if (key==NULL || (clave=(key_t) strtoul(key,NULL,10))==IPC_PRIVATE){
+		printf ("   rmkey  clave_valida\n");
+		return;
+	}
+	if ((id=shmget(clave,0,0666))==-1){
+		perror ("shmget: imposible obtener memoria compartida");
+		return;
+	}
+	if (shmctl(id,IPC_RMID,NULL)==-1)
+		perror ("shmctl: imposible eliminar memoria compartida\n");
+}
+
 int cmdMemory(int argc, char *argv[]){
 	char opA=0;		//allocate
 	char opD=0;		//dealloc
@@ -244,7 +262,7 @@ int cmdMemory(int argc, char *argv[]){
 	}
 
 	if(opDlt && argc==3 && sumOpExtra==0){		//-deletekey cl
-		//TODO
+		Cmd_deletekey(args); //mirar argumento
 	}
 
 	if(opS && argc==2){		//-show
