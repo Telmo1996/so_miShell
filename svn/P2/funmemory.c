@@ -320,7 +320,24 @@ int cmdMemory(int argc, char *argv[]){
 
 
 int cmdMemdump(int argc, char *argv[]){
-	printf("soy memdump\n");
+	char* p;
+	char* hex;// = argv[1];                          // here is the hex string
+	int addr;// = (int)strtol(hex, NULL, 16);       // number base 16
+	//printf("%c\n", num);                        // print it as a char
+	//printf("%d\n", num);                        // print it as decimal
+	//printf("%X\n", num);                        // print it back as hex
+
+	if(argc < 2)
+		return 1;
+	
+	hex = argv[1];
+	addr = (int)strtol(hex, NULL, 16);
+
+	addr = atoi(argv[1]);
+	p=(char*)addr;
+
+	printf("%c",p[0]);
+
 	return 0;
 }
 int cmdMemfill(int argc, char *argv[]){
