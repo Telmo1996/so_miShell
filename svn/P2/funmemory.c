@@ -21,11 +21,12 @@ void * ObtenerMemoriaShmget (key_t clave, size_t tam){
 	}
 	shmctl (id,IPC_STAT,&s);
 	/* Guardar En Direcciones de Memoria Shared (p, s.shm_segsz, clave.....);*/
-	memInsertElement(p, s.shm_segsz, "", 0, 's', memLista);
+	memInsertElement(p, s.shm_segsz, "", 0, clave, 's', memLista);
 	return (p);
 }
 
-void Cmd_AlocateCreateShared (char *arg[]){ /*arg[0] is the key and arg[1] is the size*/
+void Cmd_AlocateCreateShared (char *arg[]){ 
+	/*arg[0] is the key and arg[1] is the size*/
 	key_t k;
 	size_t tam=0;
 	void *p;
@@ -54,7 +55,7 @@ void * MmapFichero (char * fichero, int protection){
 	if ((p=mmap (NULL,s.st_size, protection,map,df,0))==MAP_FAILED)return NULL;
 	
 	/*Guardar Direccion de Mmap (p, s.st_size,fichero,df......);*/
-	memInsertElement(p, s.st_size, fichero, df, 'm', memLista);
+	memInsertElement(p, s.st_size, fichero, df, 0, 'm', memLista);
 	return p;
 }
 
@@ -143,9 +144,22 @@ void Cmd_deletekey (char *args[]) /*arg[0] points to a str containing the key*/
 	key_t clave;
 	int id;
 	char *key=args[0];
+	printf("%s\n",key);
+
+	memNode_t* current=memLista;
+	memNode_t* previous=NULL;
 
 	if (key==NULL || (clave=(key_t) strtoul(key,NULL,10))==IPC_PRIVATE){
 		printf ("   rmkey  clave_valida\n");
+		/*Borrar elemento de la lista*/
+		while(current != NULL){
+			if(current->key == atoi(key)){
+				memDeleteNode(previous);
+				return;
+			}
+			previous=current;
+			current=current->next;
+		}
 		return;
 	}
 	if ((id=shmget(clave,0,0666))==-1){
@@ -214,7 +228,7 @@ int cmdMemory(int argc, char *argv[]){
 		}else if(argc == 4){
 			tam = atoi(argv[3]);
 			puntero = (void *)malloc(tam);
-			memInsertElement(puntero, tam, "", 0, 'a', memLista);
+			memInsertElement(puntero, tam, "", 0, 0, 'a', memLista);
 			printf("Allocated %d at %p\n", tam, puntero);
 		}else{
 			printf("Argumentos incorrectos\n");
@@ -262,7 +276,9 @@ int cmdMemory(int argc, char *argv[]){
 	}
 
 	if(opDlt && argc==3 && sumOpExtra==0){		//-deletekey cl
-		Cmd_deletekey(args); //mirar argumento
+		args[0]=argv[2];
+		args[1]=NULL;
+		Cmd_deletekey(args);
 	}
 
 	if(opS && argc==2){		//-show

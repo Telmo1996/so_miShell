@@ -10,12 +10,13 @@ typedef struct memNode {
     int tam;
 	char *fich;
 	int df;
+	int key;
     char tipo; // a->malloc s->shared m->mapped t->todo
 } memNode_t;
 
 memNode_t * memLista;
 
 memNode_t * memCreateList();
-void memInsertElement(void*, int, char*, int, char, memNode_t *);
+void memInsertElement(void*, int, char*, int, int, char, memNode_t *);
 void memPrintList(memNode_t *, char);
 void memDeleteNode(memNode_t *);
