@@ -278,7 +278,7 @@ int cmdMemory(int argc, char *argv[]){
 	if(opDlt && argc==3 && sumOpExtra==0){		//-deletekey cl
 		args[0]=argv[2];
 		args[1]=NULL;
-		Cmd_deletekey(args);
+		Cmd_deletekey(args); //TODO no borra
 	}
 
 	if(opS && argc==2){		//-show

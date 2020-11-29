@@ -1,0 +1,10 @@
+memory -allocate -malloc 42
+memory -allocate -malloc 420
+memory -allocate -mmap test.txt
+memory -allocate -mmap delete.c
+memory -allocate -createshared 20 20
+memory -allocate -createshared 21 21
+memory -show -all
+memory -dealloc -malloc 420
+memory -dealloc -mmap test.txt
+memory -dealloc -shared 20

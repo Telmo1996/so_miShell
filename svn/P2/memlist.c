@@ -76,6 +76,17 @@ void memDeleteNode(memNode_t * previous){	//Borra el nodo siguiente al que se pa
 	//Lincar al siguiente nodo
 	previous->next = current->next;
 
+	if(current->tipo == 'a'){
+		free(current->puntero);
+	}
+	if(current->tipo == 's'){
+		free(current->puntero);
+	}
+	if(current->tipo == 'm'){
+		close(current->df);
+		//free(current->puntero);
+	}
+
 	//Borrar current
 	free(current->fecha);
 	free(current->fich);
