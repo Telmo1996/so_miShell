@@ -322,7 +322,9 @@ int cmdMemory(int argc, char *argv[]){
 int cmdMemdump(int argc, char *argv[]){
 	char* p;
 	char* hex;// = argv[1];                          // here is the hex string
-	int addr;// = (int)strtol(hex, NULL, 16);       // number base 16
+	long addr;// = (int)strtol(hex, NULL, 16);       // number base 16
+	int i, j, cont;
+	char buff[10];
 	//printf("%c\n", num);                        // print it as a char
 	//printf("%d\n", num);                        // print it as decimal
 	//printf("%X\n", num);                        // print it back as hex
@@ -331,17 +333,70 @@ int cmdMemdump(int argc, char *argv[]){
 		return 1;
 	
 	hex = argv[1];
-	addr = (int)strtol(hex, NULL, 16);
-
-	addr = atoi(argv[1]);
+	addr = (long)strtol(hex, NULL, 16);
 	p=(char*)addr;
 
-	printf("%c",p[0]);
+	if(argv[2] != NULL)
+		cont = atoi(argv[2]);
+	else
+		cont = 25;
+
+	for(j=0; j<(cont/25); j++){
+		for(i=0; i<25; i++){
+			printf("%c  ", p[j*25+i]);
+		}
+		printf("\n");
+		for(i=0; i<25; i++){
+			//ltoa(p[j*25+i], buff, 16);
+			sprintf(buff, "%x", p[j*25+i]);
+			printf("%s ", buff);
+		}
+		printf("\n");
+	}
+	if(cont%25 != 0){
+		for(i=0; i<cont%25; i++){
+			printf("%c  ", p[(cont/25)*25+i]);
+		}
+		printf("\n");
+		for(i=0; i<cont%25; i++){
+			//ltoa(p[(cont/25)*25+i], buff, 16);
+			sprintf(buff, "%x", p[(cont/25)*25+i]);
+			printf("%s ", buff);
+		}
+		printf("\n");
+	}
+
 
 	return 0;
 }
 int cmdMemfill(int argc, char *argv[]){
-	printf("soy memfill\n");
+	char* p;
+	char* hex;
+	long addr, byte;
+	int i, cont;
+
+	if(argc<2)
+		return 1;
+
+	hex = argv[1];
+	addr = (long)strtol(hex, NULL, 16);
+	p=(char*)addr;
+
+	if(argc < 3)
+		cont = 128;
+	else
+		cont = atoi(argv[2]);
+	if(argc < 4)
+		byte = 65;
+	else
+		byte = (long)strtol(argv[3], NULL, 16);
+
+	printf("%d, %ld", cont, byte);
+	
+	for(i=0; i<cont; i++){
+		p[i]=byte;
+	}
+
 	return 0;
 }
 int cmdRecurse(int argc, char *argv[]){
