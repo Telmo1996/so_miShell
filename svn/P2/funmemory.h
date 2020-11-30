@@ -13,6 +13,8 @@
 #include <errno.h>
 #include <sys/wait.h>
 
+#define TAMANO 4096
+
 
 memNode_t * memCreateList();
 int cmdMemory(int, char**);

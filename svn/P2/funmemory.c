@@ -369,6 +369,7 @@ int cmdMemdump(int argc, char *argv[]){
 
 	return 0;
 }
+
 int cmdMemfill(int argc, char *argv[]){
 	char* p;
 	char* hex;
@@ -399,14 +400,32 @@ int cmdMemfill(int argc, char *argv[]){
 
 	return 0;
 }
+
+void doRecursiva (int n){
+	char automatico[TAMANO];
+	static char estatico[TAMANO];
+
+	printf ("parametro n:%d en %p\n",n,&n);
+	printf ("array estatico en:%p \n",estatico);
+	printf ("array automatico en %p\n",automatico);
+
+	n--;
+	if (n>0)
+		doRecursiva(n);
+}
+
 int cmdRecurse(int argc, char *argv[]){
-	printf("soy recurse\n");
+	if(argc < 2)
+		return 1;
+	doRecursiva(atoi(argv[1]));
 	return 0;
 }
+
 int cmdReadfile(int argc, char *argv[]){
 	printf("soy readfile\n");
 	return 0;
 }
+
 int cmdWritefile(int argc, char *argv[]){
 	printf("soy writefile\n");
 	return 0;
