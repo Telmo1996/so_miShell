@@ -135,7 +135,7 @@ void Cmd_DeallocAddr(char *addr){
 	}
 	while(current->next != NULL){
 		printf("comparando %p y %p", current->puntero, p);
-		if(current->puntero == p){
+		if(current->puntero == p){ //TODO leer bien el puntero current->puntero
 			memDeleteNode(previous);
 			return;
 		}
