@@ -122,6 +122,32 @@ void Cmd_DeallocMmap(char* fich){
 	memPrintList(memLista, 'm');
 }
 
+void Cmd_DeallocAddr(char *addr){
+	void *p;
+	memNode_t* current=memLista;
+	memNode_t* previous=NULL;
+
+	p=(void*)(long)strtol(addr, NULL, 16);
+
+	if(addr == NULL){
+		memPrintList(memLista, 'a');
+		return;
+	}
+	while(current->next != NULL){
+		printf("comparando %p y %p", current->puntero, p);
+		if(current->puntero == p){
+			memDeleteNode(previous);
+			return;
+		}
+		previous=current;
+		current=current->next;
+	}
+
+	printf("No se ha encontrado %p", p);
+	memPrintList(memLista, 'a');
+
+}
+
 void Cmd_dopmap (char *args[]) /*no arguments necessary*/
 { pid_t pid;
 	char elpid[32];
@@ -272,7 +298,7 @@ int cmdMemory(int argc, char *argv[]){
 	}
 
 	if(opD && argc==3 && sumOpExtra==0){		//-dealloc addr
-		//TODO
+		Cmd_DeallocAddr(argv[2]);
 	}
 
 	if(opDlt && argc==3 && sumOpExtra==0){		//-deletekey cl
