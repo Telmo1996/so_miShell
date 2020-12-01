@@ -16,6 +16,7 @@
 #define TAMANO 4096
 #define LEERCOMPLETO ((ssize_t)-1)
 
+int g1, g2, g3;;
 
 memNode_t * memCreateList();
 int cmdMemory(int, char**);
