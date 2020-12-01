@@ -453,12 +453,57 @@ int cmdReadfile(int argc, char *argv[]){
 	if(argc==3)
 		LeerFichero(argv[1], p, LEERCOMPLETO);
 	else
-		LeerFichero(argv[1], p, (ssize_t)argv[3]);
+		LeerFichero(argv[1], p, (ssize_t)atoi(argv[3]));
 		
 	return 0;
 }
 
+void EscribirFichero(char opO, char* fich, void* p, size_t n){
+	int fd;
+	if( access( fich, F_OK ) != -1 ) {
+		// file exists
+		if(! opO){
+			printf("Archivo %s ya existe\n", fich);
+			printf("Utiliza -o para sobreescribirlo.");
+			return;
+		}
+	}
+	
+	fd=open(fich, O_WRONLY | O_CREAT);
+	write(fd, p, n);
+
+
+	close(fd);
+}
+
 int cmdWritefile(int argc, char *argv[]){
-	printf("soy writefile\n");
+	char opO=0;
+	char *fich, *addr, *cont;
+	void *p;
+	size_t n;
+	
+	if(argc < 2)
+		return 1;
+	
+	if(strcmp(argv[1],"-o")==0){
+		opO=1;
+		if(argc < 5)
+			return 1;
+		fich=argv[2];
+		addr=argv[3];
+		cont=argv[4];
+	}else{
+		if(argc<4)
+			return 1;
+		fich=argv[1];
+		addr=argv[2];
+		cont=argv[3];
+	}
+	
+	p=(void*)(long)strtol(addr, NULL, 16);
+	n=(size_t)atoi(cont);
+
+	EscribirFichero(opO, fich, p, n);
+
 	return 0;
 }
