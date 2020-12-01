@@ -421,8 +421,40 @@ int cmdRecurse(int argc, char *argv[]){
 	return 0;
 }
 
+ssize_t LeerFichero (char *fich, void *p, ssize_t n)
+{ /*n=-1 indica que se lea todo*/
+	ssize_t nleidos,tam=n;
+	int df, aux;
+	struct stat s;
+	if (stat (fich,&s)==-1 || (df=open(fich,O_RDONLY))==-1)
+		return ((ssize_t)-1);
+	if (n==LEERCOMPLETO)
+		tam=(ssize_t) s.st_size;
+	if ((nleidos=read(df,p, tam))==-1){
+		aux=errno;
+		close(df);
+		errno=aux;
+		return ((ssize_t)-1);
+	}
+	close (df);
+	return (nleidos);
+}
+
 int cmdReadfile(int argc, char *argv[]){
-	printf("soy readfile\n");
+	void *p;
+	long addr;
+
+	if(argc<3)
+		return 1;
+	
+	addr=(long)strtol(argv[2], NULL, 16);
+	p=(void*)addr;
+
+	if(argc==3)
+		LeerFichero(argv[1], p, LEERCOMPLETO);
+	else
+		LeerFichero(argv[1], p, (ssize_t)argv[3]);
+		
 	return 0;
 }
 

@@ -14,6 +14,7 @@
 #include <sys/wait.h>
 
 #define TAMANO 4096
+#define LEERCOMPLETO ((ssize_t)-1)
 
 
 memNode_t * memCreateList();
