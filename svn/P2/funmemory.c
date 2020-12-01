@@ -207,6 +207,22 @@ int cmdMemory(int argc, char *argv[]){
         else if (strcmp(argv[i], "-shared")==0) opSh=1;
         else if (strcmp(argv[i], "-all")==0) opAll=1;
     }
+
+	void showVars(){
+	//variables locales
+	int l1, l2, l3;
+
+	printf("Local variables: %p, %p, %p\n", &l1, &l2, &l3);
+
+	//variables globales
+	printf("Global variables: %p, %p, %p\n", &g1, &g2, &g3);
+	}
+
+	void showFuncts(){
+	//program functions
+	printf("Program function: %p, %p, %p\n",&cmdDate, &cmdAutores, &cmdTime);
+	}
+
 	printf("%d%d%d%d%d%d%d %d%d%d%d%d\n", opA,opD,opDlt,opS,opSv,opSf,opDo,
 		opMa,opMm,opCs,opSh,opAll);
 	//Comprobar que las opciones sean validas
@@ -508,17 +524,3 @@ int cmdWritefile(int argc, char *argv[]){
 	return 0;
 }
 
-void showVars(){
-	//variables locales
-	int l1, l2, l3;
-
-	printf("Local variables: %p, %p, %p\n", &l1, &l2, &l2);
-
-	//variables globales
-	printf("Global variables: %p, %p, %p", &g1, &g2, &g3);
-}
-
-void showFuncts(){
-	//program functions
-	printf("Program function: %p, %p, %p\n",&cmdDate, &cmdAutores, &cmdTime);
-}
