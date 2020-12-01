@@ -302,11 +302,11 @@ int cmdMemory(int argc, char *argv[]){
 	}
 
 	if(opSv){		//-show-vars
-		//TODO
+		showVars();
 	}
 
 	if(opSf){		//-show-funcs
-		//TODO
+		showFuncts();
 	}
 
 	if(opDo){		//-dopmap
@@ -506,4 +506,19 @@ int cmdWritefile(int argc, char *argv[]){
 	EscribirFichero(opO, fich, p, n);
 
 	return 0;
+}
+
+void showVars(){
+	//variables locales
+	int l1, l2, l3;
+
+	printf("Local variables: %p, %p, %p\n", &l1, &l2, &l2);
+
+	//variables globales
+	printf("Global variables: %p, %p, %p", &g1, &g2, &g3);
+}
+
+void showFuncts(){
+	//program functions
+	printf("Program function: %p, %p, %p\n",&cmdDate, &cmdAutores, &cmdTime);
 }
