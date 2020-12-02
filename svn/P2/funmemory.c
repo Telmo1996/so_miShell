@@ -15,7 +15,7 @@ void * ObtenerMemoriaShmget (key_t clave, size_t tam){
 	if ((p=shmat(id,NULL,0))==(void*) -1){
 		aux=errno; /*si se ha creado y no se puede mapear*/
 		if (tam) /*se borra */
-			shmctl(id,IPC_RMID,NULL);
+			shmctl(id,IPC_RMID,NULL);	//TODO creo q esto es pa borrar
 		errno=aux;
 		return (NULL);
 	}
@@ -43,6 +43,26 @@ void Cmd_AlocateCreateShared (char *arg[]){
 		perror ("Imposible obtener memoria shmget");
 	else
 		printf ("Memoria de shmget de clave %d asignada en %p\n",k,p);
+}
+
+void Cmd_AllocateShared(char *cl){
+	key_t clave;
+	int id;
+	void* p;
+	struct shmid_ds s;
+
+	clave=(key_t) atoi(cl);
+	if ((id=shmget(clave,0,0666))==-1){
+		perror ("shmget: imposible obtener memoria compartida");
+		return;
+	}
+	if ((p=shmat(id,NULL,0))==(void*) -1){
+        return;
+    }
+	shmctl (id,IPC_STAT,&s);
+	/* Guardar En Direcciones de Memoria Shared (p, s.shm_segsz, clave.....);*/
+	memInsertElement(p, s.shm_segsz, "", 0, clave, 's', memLista);
+
 }
 
 void * MmapFichero (char * fichero, int protection){
@@ -122,10 +142,21 @@ void Cmd_DeallocMmap(char* fich){
 	memPrintList(memLista, 'm');
 }
 
+void Cmd_DeallocShared(char *cl){ //TODO terminar
+	memNode_t* current=memLista;
+	memNode_t* previous=NULL;
+	
+	if(cl == NULL){
+		memPrintList(memLista, 's');
+		return;
+	}
+	//while(current->next)
+	
+}
+
 void Cmd_DeallocAddr(char *addr){
 	void *p;
 	memNode_t* current=memLista;
-	memNode_t* previous=NULL;
 
 	p=(void*)(long)strtol(addr, NULL, 16);
 
@@ -134,16 +165,15 @@ void Cmd_DeallocAddr(char *addr){
 		return;
 	}
 	while(current->next != NULL){
-		printf("comparando %p y %p", current->puntero, p);
-		if(current->puntero == p){ //TODO leer bien el puntero current->puntero
-			memDeleteNode(previous);
+		//printf("comparando %p y %p\n", current->next->puntero, p);
+		if(current->next->puntero == p){ 
+			memDeleteNode(current);		//que es el anterior
 			return;
 		}
-		previous=current;
 		current=current->next;
 	}
 
-	printf("No se ha encontrado %p", p);
+	printf("No se ha encontrado %p\n", p);
 	memPrintList(memLista, 'a');
 
 }
@@ -178,14 +208,14 @@ void Cmd_deletekey (char *args[]) /*arg[0] points to a str containing the key*/
 	if (key==NULL || (clave=(key_t) strtoul(key,NULL,10))==IPC_PRIVATE){
 		printf ("   rmkey  clave_valida\n");
 		/*Borrar elemento de la lista*/
-		while(current != NULL){
+		/*while(current != NULL){
 			if(current->key == atoi(key)){
 				memDeleteNode(previous);
 				return;
 			}
 			previous=current;
 			current=current->next;
-		}
+		}*/
 		return;
 	}
 	if ((id=shmget(clave,0,0666))==-1){
@@ -250,8 +280,9 @@ int cmdMemory(int argc, char *argv[]){
     }
 
 
-	printf("%d%d%d%d%d%d%d %d%d%d%d%d\n", opA,opD,opDlt,opS,opSv,opSf,opDo,
-		opMa,opMm,opCs,opSh,opAll);
+	//printf("%d%d%d%d%d%d%d %d%d%d%d%d\n", opA,opD,opDlt,opS,opSv,opSf,opDo,
+	//	opMa,opMm,opCs,opSh,opAll);
+
 	//Comprobar que las opciones sean validas
 	sumOpMain=opA+opD+opDlt+opS+opSv+opSf+opDo;
 	if(sumOpMain > 1){
@@ -279,6 +310,10 @@ int cmdMemory(int argc, char *argv[]){
 		}
 	}
 
+	if(sumOpMain == 0 && sumOpExtra==0){
+		memPrintList(memLista,'t');
+	}
+
 	if(opA && opMm){		//-allocate -mmap
 		arg[0] = argv[3];
 		arg[1] = argv[4];
@@ -294,7 +329,11 @@ int cmdMemory(int argc, char *argv[]){
 	}
 
 	if(opA && opSh){		//-allocate -shared
-		//TODO
+		if(argc == 3){
+			memPrintList(memLista, 's');
+		}else{
+			Cmd_AllocateShared(argv[3]);
+		}
 	}
 
 	if(opD && argc==2){		//-dealloc
@@ -311,7 +350,7 @@ int cmdMemory(int argc, char *argv[]){
 	}
 
 	if(opD && opSh){		//-dealloc -shared
-		//TODO
+		Cmd_DeallocShared(argv[3]);
 	}
 
 	if(opD && argc==3 && sumOpExtra==0){		//-dealloc addr
@@ -321,11 +360,12 @@ int cmdMemory(int argc, char *argv[]){
 	if(opDlt && argc==3 && sumOpExtra==0){		//-deletekey cl
 		args[0]=argv[2];
 		args[1]=NULL;
-		Cmd_deletekey(args); //TODO no borra
+		Cmd_deletekey(args);
 	}
 
 	if(opS && argc==2){		//-show
-		//TODO
+		showFuncts();
+		showVars();
 	}
 
 	if(opS && opMa){		//-show -malloc

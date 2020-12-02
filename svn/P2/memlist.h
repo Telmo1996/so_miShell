@@ -11,7 +11,7 @@ typedef struct memNode {
     int tam;
 	char *fich;
 	int df;
-	int key;
+	key_t key;
     char tipo; // a->malloc s->shared m->mapped t->todo
 } memNode_t;
 
