@@ -84,6 +84,12 @@ void RemoveElement(node_t * head) {
 
 }
 
+void DeleteList(node_t * current){
+	while(current->next != NULL){
+		RemoveElement(current);
+	}
+}
+
 void print_list(node_t * head, int hasta) {
     node_t * current = head->next;
 	int i = 1;

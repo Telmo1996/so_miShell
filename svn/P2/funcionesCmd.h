@@ -35,6 +35,7 @@ int TrocearCadena(char*, char**);
 int mi_regex(char*, char*);
 void InsertElement(char*, node_t*);
 void RemoveElement(node_t*);
+void DeleteList(node_t*);
 void print_list(node_t*,int);
 int cmdAutores(int, char**);
 int cmdExit(int, char**);

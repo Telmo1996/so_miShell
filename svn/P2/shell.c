@@ -1,6 +1,6 @@
 /*
-anna.taboada@udc.es     Anna Taboada Pardiñas
-telmo.fcorujo@udc.es    Telmo Fernandez Corujo
+anna.taboada@udc.es     Anna Taboada Pardiñas	20625286J
+telmo.fcorujo@udc.es    Telmo Fernandez Corujo	77481943A
 */
 
 #include <stdio.h>
