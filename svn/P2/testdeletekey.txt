@@ -1,7 +1,5 @@
-memory -allocate -createshared 30 22
+memory -deletekey 31
 memory -allocate -createshared 31 23
 memory -allocate -shared 31
-memory
-memory -deletekey 31
-memory -allocate -shared 31
+memory -dealloc -shared 31
 memory

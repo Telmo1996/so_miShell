@@ -15,7 +15,7 @@ void * ObtenerMemoriaShmget (key_t clave, size_t tam){
 	if ((p=shmat(id,NULL,0))==(void*) -1){
 		aux=errno; /*si se ha creado y no se puede mapear*/
 		if (tam) /*se borra */
-			shmctl(id,IPC_RMID,NULL);	//TODO creo q esto es pa borrar
+			shmctl(id,IPC_RMID,NULL);
 		errno=aux;
 		return (NULL);
 	}
@@ -142,16 +142,26 @@ void Cmd_DeallocMmap(char* fich){
 	memPrintList(memLista, 'm');
 }
 
-void Cmd_DeallocShared(char *cl){ //TODO terminar
+void Cmd_DeallocShared(char *cl){
 	memNode_t* current=memLista;
 	memNode_t* previous=NULL;
+	key_t clave;
 	
 	if(cl == NULL){
 		memPrintList(memLista, 's');
 		return;
 	}
-	//while(current->next)
-	
+	clave=(key_t) atoi(cl);
+	while(current->next){
+		if(current->key == clave && (current->tipo == 's')){
+			memDeleteNode(previous);
+			return;
+		}
+		previous=current;
+		current=current->next;
+	}
+
+	memPrintList(memLista, 's');
 }
 
 void Cmd_DeallocAddr(char *addr){
@@ -202,20 +212,8 @@ void Cmd_deletekey (char *args[]) /*arg[0] points to a str containing the key*/
 	char *key=args[0];
 	printf("%s\n",key);
 
-	memNode_t* current=memLista;
-	memNode_t* previous=NULL;
-
 	if (key==NULL || (clave=(key_t) strtoul(key,NULL,10))==IPC_PRIVATE){
 		printf ("   rmkey  clave_valida\n");
-		/*Borrar elemento de la lista*/
-		/*while(current != NULL){
-			if(current->key == atoi(key)){
-				memDeleteNode(previous);
-				return;
-			}
-			previous=current;
-			current=current->next;
-		}*/
 		return;
 	}
 	if ((id=shmget(clave,0,0666))==-1){

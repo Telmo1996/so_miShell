@@ -80,7 +80,8 @@ void memDeleteNode(memNode_t * previous){	//Borra el nodo siguiente al que se pa
 		free(current->puntero);
 	}
 	if(current->tipo == 's'){
-		free(current->puntero);
+		shmdt(current->puntero);
+		//free(current->puntero);
 	}
 	if(current->tipo == 'm'){
 		close(current->df);
