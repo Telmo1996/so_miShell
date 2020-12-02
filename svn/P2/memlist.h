@@ -23,3 +23,4 @@ memNode_t * memCreateList();
 void memInsertElement(void*, int, char*, int, int, char, memNode_t *);
 void memPrintList(memNode_t *, char);
 void memDeleteNode(memNode_t *);
+void memDeleteList(memNode_t *);

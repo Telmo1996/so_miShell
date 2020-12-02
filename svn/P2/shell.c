@@ -75,6 +75,8 @@ int main(int argc, char *argv[]) {
     }
 
 	free(lista);
+	memDeleteList(memLista);
+	free(memLista);
 
     return 0;
 }

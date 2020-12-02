@@ -93,3 +93,9 @@ void memDeleteNode(memNode_t * previous){	//Borra el nodo siguiente al que se pa
 	free(current->fich);
 	free(current);
 }
+
+void memDeleteList(memNode_t * current){
+	while(current->next != NULL){
+		memDeleteNode(current);
+	}
+}

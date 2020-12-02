@@ -210,7 +210,7 @@ void Cmd_deletekey (char *args[]) /*arg[0] points to a str containing the key*/
 	key_t clave;
 	int id;
 	char *key=args[0];
-	printf("%s\n",key);
+	//printf("%s\n",key);
 
 	if (key==NULL || (clave=(key_t) strtoul(key,NULL,10))==IPC_PRIVATE){
 		printf ("   rmkey  clave_valida\n");
