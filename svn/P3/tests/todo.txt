@@ -1,0 +1,12 @@
+autores
+getpid
+getppid
+pwd
+date
+time
+chdir ..
+historic
+create /tmp/hola
+list /tmp
+delete /tmp/hola
+exit
