@@ -12,7 +12,7 @@ void * ObtenerMemoriaShmget (key_t clave, size_t tam){
 		{errno=EINVAL; return NULL;}
 	if ((id=shmget(clave, tam, flags))==-1)
 		return (NULL);
-	if ((p=shmat(id,NULL,0))==(void*) -1){
+	if ((p=shmat(id,NULL,0))==(void*) -1){ //crea una copia de la memoria compartida en la del programa
 		aux=errno; /*si se ha creado y no se puede mapear*/
 		if (tam) /*se borra */
 			shmctl(id,IPC_RMID,NULL);
