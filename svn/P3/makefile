@@ -30,5 +30,11 @@ funmemory.o: funmemory.h funmemory.c funcionesCmd.h memlist.h
 memlist.o: memlist.c memlist.h
 	gcc -c -Wall memlist.c
 
+funproc.o: funproc.h funproc.c proclist.h
+	gcc -c -Wall funproc.c
+
+proclist.o: proclist.c proclist.h
+	gcc -c -Wall proclist.c
+
 clean:
 	rm -f miShell list delete *.o
