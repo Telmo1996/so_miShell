@@ -12,8 +12,8 @@ list: list.o funlist.o
 list.o: funlist.h funlist.c list.c
 	gcc -c -Wall list.c
 
-miShell: shell.o funcionesCmd.o funlist.o fundelete.o funmemory.o memlist.o
-	gcc -o miShell shell.o funcionesCmd.o funlist.o fundelete.o funmemory.o memlist.o
+miShell: shell.o funcionesCmd.o funlist.o fundelete.o funmemory.o memlist.o funproc.o proclist.o
+	gcc -o miShell shell.o funcionesCmd.o funlist.o fundelete.o funmemory.o memlist.o funproc.o proclist.o
 
 shell.o: shell.c
 	gcc -c -Wall shell.c

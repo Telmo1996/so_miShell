@@ -18,6 +18,7 @@ telmo.fcorujo@udc.es    Telmo Fernandez Corujo	77481943A
 #include "funlist.h"
 #include "fundelete.h"
 #include "funmemory.h"
+#include "funproc.h"
 
 struct datoCmd tablaComandos[] = {
     {"autores", cmdAutores},
@@ -41,6 +42,20 @@ struct datoCmd tablaComandos[] = {
 	{"recurse", cmdRecurse},
 	{"readfile", cmdReadfile},
 	{"writefile", cmdWritefile},
+	{"getpriority", cmdGetpriority},
+	{"setpriority", cmdSetpriority},
+	{"getuid", cmdGetuid},
+	{"setuid", cmdSetuid},
+	{"fork", cmdFork},
+	{"execute", cmdExecute},
+	{"foreground", cmdForeground},
+	{"background", cmdBackground},
+	{"runas", cmdRunas},
+	{"executeas", cmdExecuteas},
+	{"prog", cmdProg},
+	{"listprocs", cmdListprocs},
+	{"proc", cmdProc},
+	{"deleteprocs", cmdDeleteprocs},
     {NULL, NULL}
 };
 
