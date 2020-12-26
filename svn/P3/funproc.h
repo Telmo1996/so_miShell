@@ -4,6 +4,8 @@
 #include <sys/types.h>
 #include <pwd.h>
 #include <errno.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include "funcionesCmd.h"
 #include "proclist.h"
