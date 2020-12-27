@@ -21,7 +21,7 @@ int cmdSetpriority(int argc, char *argv[]){
 		setpriority(PRIO_PROCESS, atoi(argv[1]), atoi(argv[2]));
 	else if(argc == 2){
 		pid = getpid();
-	setpriority(PRIO_PROCESS, pid, atoi(argv[1]));
+		setpriority(PRIO_PROCESS, pid, atoi(argv[1]));
 	}else{
 		cmdGetpriority(1, getprio);
 	}
@@ -86,9 +86,18 @@ int cmdFork(int argc, char *argv[]){
 
 int cmdExecute(int argc, char *argv[]){
 	char* args[argc-1];
+	char* pri;
+	pid_t pid;
 	int i=1;
 	
 	if(argc < 2) return 1; //Falla
+
+	if(argv[argc-1][0] == '@'){
+		pri = &argv[argc-1][1];
+		argv[argc-1] = NULL;
+		pid = getpid();
+		setpriority(PRIO_PROCESS, pid, atoi(pri));
+	}
 
 	while(argv[i] != NULL){
 		args[i-1] = argv[i];
@@ -100,16 +109,76 @@ int cmdExecute(int argc, char *argv[]){
 		perror ("Cannot execute");
 		exit(255); /*exec has failed for whatever reason*/
 	}
+
 	return 0;
 }
 
 int cmdForeground(int argc, char *argv[]){
-	printf("hola");
+	char* args[argc-1];
+	char* pri;
+	pid_t pid;
+	int i=1;
+
+	if(argc < 2) return 1; //Falla
+
+	if(argv[argc-1][0] == '@'){
+		pri = &argv[argc-1][1];
+		argv[argc-1] = NULL;
+		pid = getpid();
+		setpriority(PRIO_PROCESS, pid, atoi(pri));
+	}
+
+	while(argv[i] != NULL){
+		args[i-1] = argv[i];
+		i++;
+	}
+	args[i-1]=NULL;
+
+	if((pid=fork())==0){
+		if (execvp(args[0], args)==-1){
+			perror ("Cannot execute");
+			exit(255); /*exec has failed for whatever reason*/
+		}
+		
+		exit(0);
+		return 0;
+	}
+	waitpid(pid, NULL, 0);
+
 	return 0;
 }
 
 int cmdBackground(int argc, char *argv[]){
-	printf("hola");
+	char* args[argc-1];
+	char* pri;
+	pid_t pid;
+	int i=1;
+
+	if(argc < 2) return 1; //Falla
+
+	if(argv[argc-1][0] == '@'){
+		pri = &argv[argc-1][1];
+		argv[argc-1] = NULL;
+		pid = getpid();
+		setpriority(PRIO_PROCESS, pid, atoi(pri));
+	}
+
+	while(argv[i] != NULL){
+		args[i-1] = argv[i];
+		i++;
+	}
+	args[i-1]=NULL;
+
+	if((pid=fork())==0){
+		if (execvp(args[0], args)==-1){
+			perror ("Cannot execute");
+			exit(255); /*exec has failed for whatever reason*/
+		}
+		
+		exit(0);
+		return 0;
+	}
+
 	return 0;
 }
 
