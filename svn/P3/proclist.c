@@ -5,11 +5,13 @@ procNode_t * proCreateList(){
 	head = (procNode_t *) malloc(sizeof(procNode_t));
 
 	head->next = NULL;
+	head->commandName = "";
+	head->pid = 0;
 
 	return head;
 }
 
-void procInsertElement(int foo, procNode_t * head){
+void procInsertElement(char* cmdName, pid_t pid, procNode_t * head){
 	procNode_t * current = head;
 
 	while(current->next != NULL){
@@ -17,5 +19,6 @@ void procInsertElement(int foo, procNode_t * head){
 	}
 	current->next=(procNode_t *) malloc(sizeof(procNode_t));
 	current->next->next=NULL;
-	current->next->foo = foo;
+	current->next->commandName = strdup(cmdName);
+	current->next->pid = pid;
 }

@@ -179,6 +179,9 @@ int cmdBackground(int argc, char *argv[]){
 		return 0;
 	}
 
+	procInsertElement(args[0], pid, procLista);
+	printf("%d\n", pid);
+
 	return 0;
 }
 
