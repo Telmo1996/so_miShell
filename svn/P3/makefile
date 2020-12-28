@@ -1,4 +1,4 @@
-all: miShell list delete
+all: shell list delete
 
 delete: delete.o fundelete.o funlist.o
 	gcc -o delete delete.o fundelete.o funlist.o
@@ -12,8 +12,8 @@ list: list.o funlist.o
 list.o: funlist.h funlist.c list.c
 	gcc -c -Wall list.c
 
-miShell: shell.o funcionesCmd.o funlist.o fundelete.o funmemory.o memlist.o funproc.o proclist.o
-	gcc -o miShell shell.o funcionesCmd.o funlist.o fundelete.o funmemory.o memlist.o funproc.o proclist.o
+shell: shell.o funcionesCmd.o funlist.o fundelete.o funmemory.o memlist.o funproc.o proclist.o
+	gcc -o shell shell.o funcionesCmd.o funlist.o fundelete.o funmemory.o memlist.o funproc.o proclist.o
 
 shell.o: shell.c
 	gcc -c -Wall shell.c
@@ -37,4 +37,4 @@ proclist.o: proclist.c proclist.h
 	gcc -c -Wall proclist.c
 
 clean:
-	rm -f miShell list delete *.o
+	rm -f shell list delete *.o

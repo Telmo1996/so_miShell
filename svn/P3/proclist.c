@@ -1,6 +1,6 @@
 #include "proclist.h"
 
-procNode_t * proCreateList(){
+procNode_t * procCreateList(){
 	procNode_t * head = NULL;
 	head = (procNode_t *) malloc(sizeof(procNode_t));
 

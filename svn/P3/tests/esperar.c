@@ -13,8 +13,11 @@ int main(int argc, char *argv[]){
 */
 int main( int argc, char* argv[] )
 {
+	pid_t pid=getpid();
 	int i;
-	for(i=0; i<10; i++)
+
+	printf("%d\n",pid);
+	for(i=0; i<30; i++)
 	{
 		sleep(1);
 		printf( "%d\n", i);

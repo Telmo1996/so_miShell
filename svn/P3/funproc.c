@@ -84,48 +84,34 @@ int cmdFork(int argc, char *argv[]){
 	return 0;
 }
 
-int cmdExecute(int argc, char *argv[]){
-	char* args[argc-1];
-	char* pri;
+pid_t execute(char* args[], char changePri, int pri){
 	pid_t pid;
-	int i=1;
-	
-	if(argc < 2) return 1; //Falla
 
-	if(argv[argc-1][0] == '@'){
-		pri = &argv[argc-1][1];
-		argv[argc-1] = NULL;
-		pid = getpid();
-		setpriority(PRIO_PROCESS, pid, atoi(pri));
-	}
-
-	while(argv[i] != NULL){
-		args[i-1] = argv[i];
-		i++;
-	}
-	args[i-1]=NULL;
+	pid = getpid();
+	if(changePri)
+		setpriority(PRIO_PROCESS, pid, pri);
 
 	if (execvp(args[0], args)==-1){
 		perror ("Cannot execute");
 		exit(255); /*exec has failed for whatever reason*/
 	}
 
-	return 0;
+	return pid;
+
 }
 
-int cmdForeground(int argc, char *argv[]){
+int cmdExecute(int argc, char *argv[]){
 	char* args[argc-1];
-	char* pri;
-	pid_t pid;
+	int pri;
+	char changePri=0;
 	int i=1;
-
+	
 	if(argc < 2) return 1; //Falla
 
 	if(argv[argc-1][0] == '@'){
-		pri = &argv[argc-1][1];
+		changePri=1;
+		pri = atoi(&argv[argc-1][1]);
 		argv[argc-1] = NULL;
-		pid = getpid();
-		setpriority(PRIO_PROCESS, pid, atoi(pri));
 	}
 
 	while(argv[i] != NULL){
@@ -134,6 +120,19 @@ int cmdForeground(int argc, char *argv[]){
 	}
 	args[i-1]=NULL;
 
+	execute(args, changePri, pri);
+
+
+	return 0;
+}
+
+pid_t foreground(char* args[], char changePri, int pri){
+	pid_t pid;
+
+	pid = getpid();
+	if(changePri)
+		setpriority(PRIO_PROCESS, pid, pri);
+	
 	if((pid=fork())==0){
 		if (execvp(args[0], args)==-1){
 			perror ("Cannot execute");
@@ -143,31 +142,44 @@ int cmdForeground(int argc, char *argv[]){
 		exit(0);
 		return 0;
 	}
+
+	return pid;
+
+}
+
+int cmdForeground(int argc, char *argv[]){
+	char* args[argc-1];
+	int pri;
+	char changePri;
+	pid_t pid;
+	int i=1;
+
+	if(argc < 2) return 1; //Falla
+
+	if(argv[argc-1][0] == '@'){
+		changePri=1;
+		pri = atoi(&argv[argc-1][1]);
+		argv[argc-1] = NULL;
+	}
+
+	while(argv[i] != NULL){
+		args[i-1] = argv[i];
+		i++;
+	}
+	args[i-1]=NULL;
+
+	pid=foreground(args, changePri, pri);
 	waitpid(pid, NULL, 0);
 
 	return 0;
 }
 
-int cmdBackground(int argc, char *argv[]){
-	char* args[argc-1];
-	char* pri;
+pid_t background(char* args[], char changePri, int pri){
 	pid_t pid;
-	int i=1;
 
-	if(argc < 2) return 1; //Falla
-
-	if(argv[argc-1][0] == '@'){
-		pri = &argv[argc-1][1];
-		argv[argc-1] = NULL;
-		pid = getpid();
-		setpriority(PRIO_PROCESS, pid, atoi(pri));
-	}
-
-	while(argv[i] != NULL){
-		args[i-1] = argv[i];
-		i++;
-	}
-	args[i-1]=NULL;
+	pid = getpid();
+	if(changePri)
+		setpriority(PRIO_PROCESS, pid, pri);
 
 	if((pid=fork())==0){
 		if (execvp(args[0], args)==-1){
@@ -178,9 +190,36 @@ int cmdBackground(int argc, char *argv[]){
 		exit(0);
 		return 0;
 	}
+	
+	return pid;
+	
+}
 
+int cmdBackground(int argc, char *argv[]){
+	char* args[argc-1];
+	int pri;
+	char changePri=0;
+	pid_t pid;
+	int i=1;
+
+	if(argc < 2) return 1; //Falla
+
+	if(argv[argc-1][0] == '@'){
+		changePri=1;
+		pri = atoi(&argv[argc-1][1]);
+		argv[argc-1] = NULL;
+	}
+
+	while(argv[i] != NULL){
+		args[i-1] = argv[i];
+		i++;
+	}
+	args[i-1]=NULL;
+
+	pid=background(args, changePri, pri);
+
+	//printf("%d\n", pid);
 	procInsertElement(args[0], pid, procLista);
-	printf("%d\n", pid);
 
 	return 0;
 }

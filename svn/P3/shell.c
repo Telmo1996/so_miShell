@@ -63,6 +63,7 @@ int main(int argc, char *argv[]) {
     int ntrozos=0,i;
 	lista = CreateList();
 	memLista = memCreateList();
+	procLista = procCreateList();
 
     while (true){
         printf("@");
