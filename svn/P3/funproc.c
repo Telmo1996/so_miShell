@@ -68,8 +68,10 @@ int cmdSetuid (int argc, char *tr[]){
 		printf ("Valor no valido de la credencial %s\n",tr[0]);
 		return 1;
 	}
-	if (setuid (uid)==-1)
+	if (setuid (uid)==-1){
 		printf ("Imposible cambiar credencial: %s\n", strerror(errno));
+		return 1;
+	}
 	
 	return 0;
 }
@@ -126,14 +128,26 @@ int cmdExecute(int argc, char *argv[]){
 	return 0;
 }
 
-pid_t foreground(char* args[], char changePri, int pri){
+pid_t createChild(
+	char* args[], char changePri, int pri, char isRunas, char* login
+){
 	pid_t pid;
+	char* argsUid[3];
 
 	pid = getpid();
 	if(changePri)
 		setpriority(PRIO_PROCESS, pid, pri);
 	
 	if((pid=fork())==0){
+		
+		if(isRunas){
+			argsUid[0]="setuid"; argsUid[1]="-l"; argsUid[2] = login;
+			if((cmdSetuid(3, argsUid))!=0){
+				exit(255);
+				return 0;
+			}
+		}
+
 		if (execvp(args[0], args)==-1){
 			perror ("Cannot execute");
 			exit(255); /*exec has failed for whatever reason*/
@@ -168,31 +182,10 @@ int cmdForeground(int argc, char *argv[]){
 	}
 	args[i-1]=NULL;
 
-	pid=foreground(args, changePri, pri);
+	pid=createChild(args, changePri, pri, 0, "");
 	waitpid(pid, NULL, 0);
 
 	return 0;
-}
-
-pid_t background(char* args[], char changePri, int pri){
-	pid_t pid;
-
-	pid = getpid();
-	if(changePri)
-		setpriority(PRIO_PROCESS, pid, pri);
-
-	if((pid=fork())==0){
-		if (execvp(args[0], args)==-1){
-			perror ("Cannot execute");
-			exit(255); /*exec has failed for whatever reason*/
-		}
-		
-		exit(0);
-		return 0;
-	}
-	
-	return pid;
-	
 }
 
 int cmdBackground(int argc, char *argv[]){
@@ -216,7 +209,7 @@ int cmdBackground(int argc, char *argv[]){
 	}
 	args[i-1]=NULL;
 
-	pid=background(args, changePri, pri);
+	pid=createChild(args, changePri, pri, 0, "");
 
 	//printf("%d\n", pid);
 	procInsertElement(args[0], pid, procLista);
@@ -225,8 +218,46 @@ int cmdBackground(int argc, char *argv[]){
 }
 
 int cmdRunas(int argc, char *argv[]){
-	printf("hola");
+	char* args[argc-1];
+	char* login;
+	int pri;
+	char changePri=0;
+	pid_t pid;
+	char toBack = 0;
+	int i=0;
+
+	if(argc < 2) return 1; //Falla
+
+	if (strcmp(argv[argc-1],"&")==0){
+		toBack = 1;
+		argv[argc-1]=NULL;
+	}
+	printf("%s ",toBack?"si":"no");
+	while(argv[i] != NULL){
+		i++;
+	}
+	if(argv[i-1][0] == '@'){
+		changePri=1;
+		pri = atoi(&argv[i-1][1]);
+		argv[i-1]=NULL;
+	}
+	printf("%d\n",changePri?pri:42);
+	login=argv[1];
+	i=2;
+	while(argv[i] != NULL){
+		args[i-2] = argv[i];
+		i++;
+	}
+	args[i-1]=NULL;
+
+
+	pid=createChild(args, changePri, pri, 1, login);
+
+	if(!toBack)
+		waitpid(pid, NULL, 0);
+	
 	return 0;
+
 }
 
 int cmdExecuteas(int argc, char *argv[]){
