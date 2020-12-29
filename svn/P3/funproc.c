@@ -51,9 +51,15 @@ int cmdGetuid (int argc, char *tr[]){
 	return 0;
 }
 
-int cmdSetuid (int argc, char *tr[]){
+int cmdSetuid (int argc, char *argv[]){
 	uid_t uid;
+	char* tr[argc-1];
 	int u;
+
+	for(int i=0; i<argc; i++){
+		tr[i]=argv[i+1];
+	}
+
 	if (tr[0]==NULL || (!strcmp(tr[0],"-l") && tr[1]==NULL)){
 		cmdGetuid(argc, tr);
 		return 0;
@@ -68,6 +74,7 @@ int cmdSetuid (int argc, char *tr[]){
 		printf ("Valor no valido de la credencial %s\n",tr[0]);
 		return 1;
 	}
+	//printf("uid: %d\n", uid);
 	if (setuid (uid)==-1){
 		printf ("Imposible cambiar credencial: %s\n", strerror(errno));
 		return 1;
