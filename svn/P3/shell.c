@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
 			ntrozos=TrocearCadena(linea, trozos);
 			for (i=0; ;i++){
 				if (tablaComandos[i].nombre==NULL){
-					printf("no entiendo\n");
+					noEntiendo(ntrozos, trozos);
 					break;
 				}
 				if (strcmp(tablaComandos[i].nombre, trozos[0])==0){

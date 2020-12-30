@@ -24,3 +24,4 @@ int cmdProg(int, char**);
 int cmdListprocs(int, char**);
 int cmdProc(int, char**);
 int cmdDeleteprocs(int, char**);
+void noEntiendo(int, char**);

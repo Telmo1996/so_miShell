@@ -123,6 +123,14 @@ pid_t createChild(
 ){
 	pid_t pid;
 	char* argsUid[3];
+	int i=0;
+
+	while(args[i] != NULL){
+		printf("%s ", args[i]);
+		i++;
+	}
+	printf("\n%d\n", i);
+
 
 	pid = getpid();
 	if(changePri)
@@ -281,7 +289,6 @@ int cmdExecuteas(int argc, char *argv[]){
 	char* login;
 	int pri;
 	char changePri = 0;
-	pid_t pid;
 	int i=0;
 
 	if(argc < 2) return 1; //Falla
@@ -299,9 +306,39 @@ int cmdExecuteas(int argc, char *argv[]){
 	}
 	args[i-1]=NULL;
 
-	pid = execute(args, changePri, pri, 1, login);
+	execute(args, changePri, pri, 1, login);
 
 	return 0;
+}
+
+void noEntiendo(int argc, char* argv[]){
+	pid_t pid;
+	int pri;
+	char changePri=0, toBack=0;
+	int nArgs=argc;
+	int i = 0;
+
+	if(strcmp(argv[argc-1], "&")==0){
+		toBack = 1;
+		nArgs--;
+	}
+	if(argv[nArgs-1][0] == '@'){
+		changePri=1;
+		pri = atoi(&argv[nArgs-1][1]);
+		nArgs--;
+	}
+	
+	char* args[nArgs+1];
+
+	for(i=0; i<nArgs; i++)
+		args[i]=argv[i];
+	args[nArgs]=NULL;
+
+	pid=createChild(args, changePri, pri, 0, "");
+
+	if(!toBack)
+		waitpid(pid, NULL, 0);
+	
 }
 
 int cmdProg(int argc, char *argv[]){
