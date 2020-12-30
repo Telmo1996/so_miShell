@@ -93,12 +93,21 @@ int cmdFork(int argc, char *argv[]){
 	return 0;
 }
 
-pid_t execute(char* args[], char changePri, int pri){
+pid_t execute(char* args[], char changePri, int pri, char isExecuteas, char* login){
 	pid_t pid;
+	char* argsUid[3];
 
 	pid = getpid();
 	if(changePri)
 		setpriority(PRIO_PROCESS, pid, pri);
+	
+	if(isExecuteas){
+		argsUid[0]="setuid"; argsUid[1]="-l"; argsUid[2] = login;
+		if((cmdSetuid(3, argsUid))!=0){
+			exit(255);
+			return 0;
+		}
+	}
 
 	if (execvp(args[0], args)==-1){
 		perror ("Cannot execute");
@@ -107,32 +116,6 @@ pid_t execute(char* args[], char changePri, int pri){
 
 	return pid;
 
-}
-
-int cmdExecute(int argc, char *argv[]){
-	char* args[argc-1];
-	int pri;
-	char changePri=0;
-	int i=1;
-	
-	if(argc < 2) return 1; //Falla
-
-	if(argv[argc-1][0] == '@'){
-		changePri=1;
-		pri = atoi(&argv[argc-1][1]);
-		argv[argc-1] = NULL;
-	}
-
-	while(argv[i] != NULL){
-		args[i-1] = argv[i];
-		i++;
-	}
-	args[i-1]=NULL;
-
-	execute(args, changePri, pri);
-
-
-	return 0;
 }
 
 pid_t createChild(
@@ -166,6 +149,32 @@ pid_t createChild(
 
 	return pid;
 
+}
+
+int cmdExecute(int argc, char *argv[]){
+	char* args[argc-1];
+	int pri;
+	char changePri=0;
+	int i=1;
+	
+	if(argc < 2) return 1; //Falla
+
+	if(argv[argc-1][0] == '@'){
+		changePri=1;
+		pri = atoi(&argv[argc-1][1]);
+		argv[argc-1] = NULL;
+	}
+
+	while(argv[i] != NULL){
+		args[i-1] = argv[i];
+		i++;
+	}
+	args[i-1]=NULL;
+
+	execute(args, changePri, pri, 0, "");
+
+
+	return 0;
 }
 
 int cmdForeground(int argc, char *argv[]){
@@ -248,7 +257,7 @@ int cmdRunas(int argc, char *argv[]){
 		pri = atoi(&argv[i-1][1]);
 		argv[i-1]=NULL;
 	}
-	printf("%d\n",changePri?pri:42);
+	//printf("%d\n",changePri?pri:42);
 	login=argv[1];
 	i=2;
 	while(argv[i] != NULL){
@@ -268,7 +277,30 @@ int cmdRunas(int argc, char *argv[]){
 }
 
 int cmdExecuteas(int argc, char *argv[]){
-	printf("hola");
+	char* args[argc-1];
+	char* login;
+	int pri;
+	char changePri = 0;
+	pid_t pid;
+	int i=0;
+
+	if(argc < 2) return 1; //Falla
+
+	if(argv[argc-1][0] == '@'){
+		changePri = 1;
+		pri = atoi(&argv[argc-1][1]);
+		argv[argc-1]=NULL;
+	}
+	login = argv[1];
+	i=2;
+	while(argv[i] != NULL){
+		args[i-2] = argv[i];
+		i++;
+	}
+	args[i-1]=NULL;
+
+	pid = execute(args, changePri, pri, 1, login);
+
 	return 0;
 }
 
