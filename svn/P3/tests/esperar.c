@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -17,7 +18,7 @@ int main( int argc, char* argv[] )
 	int i;
 
 	printf("%d\n",pid);
-	for(i=0; i<30; i++)
+	for(i=0; i<atoi(argv[1]); i++)
 	{
 		sleep(1);
 		printf( "%d\n", i);

@@ -1,0 +1,5 @@
+background ./a.out 1 
+background ./a.out 3 @2
+background ./a.out 2 @6
+background ./a.out 3
+listprocs

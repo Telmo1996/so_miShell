@@ -1,5 +1,23 @@
 #include "funproc.h"
 
+int Senal(char * sen) /*devuel el numero de senial a partir del nombre*/
+{
+	int i;
+	for (i=0; sigstrnum[i].nombre!=NULL; i++)
+		if (!strcmp(sen, sigstrnum[i].nombre))
+			return sigstrnum[i].senal;
+	return -1;
+}
+char *NombreSenal(int sen) /*devuelve el nombre senal a partir de la senal*/
+{
+/* para sitios donde no hay sig2str*/
+	int i;
+	for (i=0; sigstrnum[i].nombre!=NULL; i++)
+		if (sen==sigstrnum[i].senal)
+			return sigstrnum[i].nombre;
+	return ("SIGUNKNOWN");
+}
+
 int cmdGetpriority(int argc, char *argv[]){
 	pid_t pid;
 
@@ -123,14 +141,6 @@ pid_t createChild(
 ){
 	pid_t pid;
 	char* argsUid[3];
-	int i=0;
-
-	while(args[i] != NULL){
-		printf("%s ", args[i]);
-		i++;
-	}
-	printf("\n%d\n", i);
-
 
 	pid = getpid();
 	if(changePri)
@@ -214,9 +224,10 @@ int cmdForeground(int argc, char *argv[]){
 
 int cmdBackground(int argc, char *argv[]){
 	char* args[argc-1];
-	int pri;
+	int pri=0;
 	char changePri=0;
 	pid_t pid;
+	char buffCmdName[255]="";
 	int i=1;
 
 	if(argc < 2) return 1; //Falla
@@ -229,20 +240,21 @@ int cmdBackground(int argc, char *argv[]){
 
 	while(argv[i] != NULL){
 		args[i-1] = argv[i];
+		strcat(strcat(buffCmdName, " "), argv[i]);
 		i++;
 	}
 	args[i-1]=NULL;
 
 	pid=createChild(args, changePri, pri, 0, "");
 
-	//printf("%d\n", pid);
-	procInsertElement(args[0], pid, procLista);
+	//printf("%s\n", buffCmdName);
+	procInsertElement(buffCmdName, pid, pri, procLista);
 
 	return 0;
 }
 
 int cmdRunas(int argc, char *argv[]){
-	char* args[argc-1];
+	int nArgs=argc-1;
 	char* login;
 	int pri;
 	char changePri=0;
@@ -254,25 +266,23 @@ int cmdRunas(int argc, char *argv[]){
 
 	if (strcmp(argv[argc-1],"&")==0){
 		toBack = 1;
-		argv[argc-1]=NULL;
+		nArgs--;
 	}
-	printf("%s ",toBack?"si":"no");
-	while(argv[i] != NULL){
-		i++;
-	}
-	if(argv[i-1][0] == '@'){
+	//printf("%s ",toBack?"si":"no");
+	if(argv[nArgs-1][0] == '@'){
 		changePri=1;
-		pri = atoi(&argv[i-1][1]);
-		argv[i-1]=NULL;
+		pri = atoi(&argv[nArgs-1][1]);
+		nArgs--;
 	}
 	//printf("%d\n",changePri?pri:42);
+
+	char* args[nArgs+1];
 	login=argv[1];
-	i=2;
-	while(argv[i] != NULL){
-		args[i-2] = argv[i];
-		i++;
-	}
-	args[i-1]=NULL;
+
+	for(i=0; i<nArgs; i++)
+		args[i] = argv[i+2];
+
+	args[nArgs]=NULL;
 
 
 	pid=createChild(args, changePri, pri, 1, login);
@@ -285,7 +295,7 @@ int cmdRunas(int argc, char *argv[]){
 }
 
 int cmdExecuteas(int argc, char *argv[]){
-	char* args[argc-1];
+	int nArgs=argc-1;
 	char* login;
 	int pri;
 	char changePri = 0;
@@ -293,18 +303,19 @@ int cmdExecuteas(int argc, char *argv[]){
 
 	if(argc < 2) return 1; //Falla
 
-	if(argv[argc-1][0] == '@'){
+	if(argv[nArgs][0] == '@'){
 		changePri = 1;
-		pri = atoi(&argv[argc-1][1]);
-		argv[argc-1]=NULL;
+		pri = atoi(&argv[nArgs][1]);
+		nArgs--;
 	}
+
+	char* args[nArgs+1];
 	login = argv[1];
-	i=2;
-	while(argv[i] != NULL){
-		args[i-2] = argv[i];
-		i++;
-	}
-	args[i-1]=NULL;
+
+	for(i=0; i<nArgs; i++)
+		args[i] = argv[i+2];
+
+	args[nArgs]=NULL;
 
 	execute(args, changePri, pri, 1, login);
 
@@ -341,13 +352,45 @@ void noEntiendo(int argc, char* argv[]){
 	
 }
 
-int cmdProg(int argc, char *argv[]){
-	printf("hola");
-	return 0;
-}
-
 int cmdListprocs(int argc, char *argv[]){
-	printf("hola");
+	procNode_t* current = procLista;
+	int status, exited, signal=0;
+	char* state="", *returned="";
+
+	while(current->next != NULL){
+		printf("%d", current->next->pid);
+		//Recoger info
+		waitpid(current->next->pid, &status, WNOHANG);
+
+		if(WIFEXITED(status)){
+			exited=WEXITSTATUS(status);
+			sprintf(returned, "%d", exited);
+		}else{
+			state="Running";
+		}
+
+		if(WIFSIGNALED(status)){
+			state="Terminated By Signal";
+			signal=WTERMSIG(status);
+			returned=NombreSenal(signal);
+		}
+		if(WIFSTOPPED(status)){
+			state="Stopped";
+			signal=WSTOPSIG(status);
+			returned=NombreSenal(signal);
+		}
+
+
+		//Imprimir
+		printf("%d: ",current->next->pid);
+		printf("%d, ", current->next->prio);
+		printf("%s\t", current->next->commandName);
+		printf("%s ", current->next->fecha);
+		printf("%s ", state);
+		printf("%s\n", returned);
+		current = current->next;
+	}
+
 	return 0;
 }
 
