@@ -326,6 +326,7 @@ void noEntiendo(int argc, char* argv[]){
 	pid_t pid;
 	int pri;
 	char changePri=0, toBack=0;
+	char buffCmdName[255]="";
 	int nArgs=argc;
 	int i = 0;
 
@@ -341,61 +342,118 @@ void noEntiendo(int argc, char* argv[]){
 	
 	char* args[nArgs+1];
 
-	for(i=0; i<nArgs; i++)
+	for(i=0; i<nArgs; i++){
 		args[i]=argv[i];
+		strcat(strcat(buffCmdName, " "), argv[i]);
+	}
 	args[nArgs]=NULL;
 
 	pid=createChild(args, changePri, pri, 0, "");
 
+
 	if(!toBack)
 		waitpid(pid, NULL, 0);
+	else
+		procInsertElement(buffCmdName, pid, pri, procLista);
 	
+}
+
+void procInfo(procNode_t* current){
+	int status, signal=0;
+	char didExit=0;
+	int exitStatus=0;
+	char* state="";
+	char* returned="";
+	waitpid(current->pid, &status, WNOHANG|WUNTRACED);
+	
+	if((didExit=WIFEXITED(status))){
+		exitStatus=WEXITSTATUS(status);
+		state="Terminated Normally";
+		//sprintf(returned, "%d", exited);
+		//printf("--%d--", exited);
+	}else{
+		state="Running";
+	}
+
+	if(WIFSTOPPED(status)){
+		state="Stopped";
+		signal=WSTOPSIG(status);
+		returned=NombreSenal(signal);
+		didExit=1;
+	}
+	if(WIFSIGNALED(status)){
+		state="Terminated By Signal";
+		signal=WTERMSIG(status);
+		returned=NombreSenal(signal);
+	}
+
+	//Imprimir
+	printf("%d: ",current->pid);
+	printf("%d, ", current->prio);
+	printf("%s\t", current->commandName);
+	printf("%s ", current->fecha);
+	printf("%s ", state);
+	if(didExit)
+		printf("%d\n", exitStatus);
+	else
+		printf("%s\n", returned);
+
 }
 
 int cmdListprocs(int argc, char *argv[]){
 	procNode_t* current = procLista;
-	int status, exited, signal=0;
-	char* state="", *returned="";
 
 	while(current->next != NULL){
-		printf("%d", current->next->pid);
-		//Recoger info
-		waitpid(current->next->pid, &status, WNOHANG);
-
-		if(WIFEXITED(status)){
-			exited=WEXITSTATUS(status);
-			sprintf(returned, "%d", exited);
-		}else{
-			state="Running";
-		}
-
-		if(WIFSIGNALED(status)){
-			state="Terminated By Signal";
-			signal=WTERMSIG(status);
-			returned=NombreSenal(signal);
-		}
-		if(WIFSTOPPED(status)){
-			state="Stopped";
-			signal=WSTOPSIG(status);
-			returned=NombreSenal(signal);
-		}
-
-
-		//Imprimir
-		printf("%d: ",current->next->pid);
-		printf("%d, ", current->next->prio);
-		printf("%s\t", current->next->commandName);
-		printf("%s ", current->next->fecha);
-		printf("%s ", state);
-		printf("%s\n", returned);
 		current = current->next;
+		procInfo(current);
 	}
 
 	return 0;
 }
 
 int cmdProc(int argc, char *argv[]){
-	printf("hola");
+	procNode_t* current = procLista;
+	procNode_t* pidNode;
+	pid_t pid=0;
+	char *argProcs[1];
+	char doListProcs=0;
+	char toFg=0;
+	char existe=0;
+
+	if(argc<2){
+		doListProcs=1;
+	}else if(strcmp(argv[1], "-fg")==0){
+		toFg=1;
+		if(argv[2]!=NULL)
+			pid=atoi(argv[2]);
+		else
+			doListProcs=1;
+	}else{
+		pid=atoi(argv[1]);
+	}
+
+	if(pid != 0){
+		while(current->next != NULL){
+			current=current->next;
+			if(current->pid == pid){
+				existe=1;
+				pidNode=current;
+			}
+		}
+	}
+
+	if(doListProcs || !existe){
+		argProcs[0]="listprocs";
+		cmdListprocs(1,argProcs);
+		return 0;
+	}
+
+	if(toFg)
+		waitpid(pid, NULL, 0);
+
+	procInfo(pidNode);
+	//TODO borrar de lista;
+
 	return 0;
 }
 
