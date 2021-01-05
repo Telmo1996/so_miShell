@@ -26,6 +26,7 @@ void timeProc(char out[128]){
 void procInsertElement(char* cmdName, pid_t pid, int prio, procNode_t * head){
 	procNode_t * current = head;
 	char out[128];
+	char foo[16] = "foo";
 
 	while(current->next != NULL){
 		current = current-> next;
@@ -40,9 +41,9 @@ void procInsertElement(char* cmdName, pid_t pid, int prio, procNode_t * head){
 	current->next->prio = prio;
 	current->next->pid = pid;
 	current->next->finished = 0;
-	current->next->state = "";
+	current->next->state = strdup(foo);
 	current->next->exitStatus = 0;
-	current->next->returned = "";
+	current->next->returned = strdup(foo);
 }
 
 void procRemoveElement(procNode_t * previous){

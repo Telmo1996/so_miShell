@@ -1,5 +1,82 @@
 #include "funproc.h"
 
+/******************************SENALES ******************************************/
+struct SEN{
+	char *nombre;
+	int senal;
+};
+
+static struct SEN sigstrnum[]={
+	{"HUP", SIGHUP},
+	{"INT", SIGINT},
+	{"QUIT", SIGQUIT},
+	{"ILL", SIGILL},
+	{"TRAP", SIGTRAP},
+	{"ABRT", SIGABRT},
+	{"IOT", SIGIOT},
+	{"BUS", SIGBUS},
+	{"FPE", SIGFPE},
+	{"KILL", SIGKILL},
+	{"USR1", SIGUSR1},
+	{"SEGV", SIGSEGV},
+	{"USR2", SIGUSR2},
+	{"PIPE", SIGPIPE},
+	{"ALRM", SIGALRM},
+	{"TERM", SIGTERM},
+	{"CHLD", SIGCHLD},
+	{"CONT", SIGCONT},
+	{"STOP", SIGSTOP},
+	{"TSTP", SIGTSTP},
+	{"TTIN", SIGTTIN},
+	{"TTOU", SIGTTOU},
+	{"URG", SIGURG},
+	{"XCPU", SIGXCPU},
+	{"XFSZ", SIGXFSZ},
+	{"VTALRM", SIGVTALRM},
+	{"PROF", SIGPROF},
+	{"WINCH", SIGWINCH},
+	{"IO", SIGIO},
+	{"SYS", SIGSYS},
+	//senales que no hay en todas partes
+	#ifdef SIGPOLL
+	{"POLL", SIGPOLL},
+	#endif
+	#ifdef SIGPWR
+	{"PWR", SIGPWR},
+	#endif
+	#ifdef SIGEMT
+	{"EMT", SIGEMT},
+	#endif
+	#ifdef SIGINFO
+	{"INFO", SIGINFO},
+	#endif
+	#ifdef SIGSTKFLT
+	{"STKFLT", SIGSTKFLT},
+	#endif
+	#ifdef SIGCLD
+	{"CLD", SIGCLD},
+	#endif
+	#ifdef SIGLOST
+	{"LOST", SIGLOST},
+	#endif
+	#ifdef SIGCANCEL
+	{"CANCEL", SIGCANCEL},
+	#endif
+	#ifdef SIGTHAW
+	{"THAW", SIGTHAW},
+	#endif
+	#ifdef SIGFREEZE
+	{"FREEZE", SIGFREEZE},
+	#endif
+	#ifdef SIGLWP
+	{"LWP", SIGLWP},
+	#endif
+	#ifdef SIGWAITING
+	{"WAITING", SIGWAITING},
+	#endif
+	{NULL,-1},
+};		//fin array sigstrnum
+
 int Senal(char * sen) /*devuel el numero de senial a partir del nombre*/
 {
 	int i;
@@ -358,7 +435,7 @@ void noEntiendo(int argc, char* argv[]){
 	
 }
 
-void procInfo(procNode_t* current){
+void procInfo(procNode_t* current, int options, char imprimir){
 	int status, signal=0;
 	char didExit=0;
 	int exitStatus=0;
@@ -366,7 +443,7 @@ void procInfo(procNode_t* current){
 	char* returned="";
 	int waitReturn;
 
-	waitReturn = waitpid(current->pid, &status, WNOHANG|WUNTRACED|WCONTINUED);
+	waitReturn = waitpid(current->pid, &status, options);
 	//printf("waitreturn: %d, finished: %d\n", waitReturn, current->finished);
 
 	if(waitReturn < 0 || (current->finished && waitReturn == 0)){ //No changes
@@ -419,15 +496,17 @@ void procInfo(procNode_t* current){
 	}
 
 	//Imprimir
-	printf("%d: ",current->pid);
-	printf("%d, ", current->prio);
-	printf("%s\t", current->commandName);
-	printf("%s ", current->fecha);
-	printf("%s ", state);
-	if(didExit)
-		printf("%d\n", exitStatus);
-	else
-		printf("%s\n", returned);
+	if(imprimir){
+		printf("%d: ",current->pid);
+		printf("%d, ", current->prio);
+		printf("%s\t", current->commandName);
+		printf("%s ", current->fecha);
+		printf("%s ", state);
+		if(didExit)
+			printf("%d\n", exitStatus);
+		else
+			printf("%s\n", returned);
+	}
 
 }
 
@@ -436,7 +515,7 @@ int cmdListprocs(int argc, char *argv[]){
 
 	while(current->next != NULL){
 		current = current->next;
-		procInfo(current);
+		procInfo(current, WNOHANG|WUNTRACED|WCONTINUED, 1);
 	}
 
 	return 0;
@@ -479,18 +558,39 @@ int cmdProc(int argc, char *argv[]){
 		return 0;
 	}
 
-	if(toFg)
-		waitpid(pid, NULL, 0);
+	if(toFg){
+		procInfo(pidNodePrev->next, WUNTRACED|WCONTINUED, 1);
+		procRemoveElement(pidNodePrev);
+	}else{
+		procInfo(pidNodePrev->next, WNOHANG|WUNTRACED|WCONTINUED, 1);
+	}
 
-	procInfo(pidNodePrev->next);
 	
-	procRemoveElement(pidNodePrev);
 
 	return 0;
 }
 
 int cmdDeleteprocs(int argc, char *argv[]){
-	printf("hola");
+	char statDel[64];
+	procNode_t* current = procLista;	
+
+	if(argc < 2) return 1;
+
+	if(strcmp(argv[1], "-term") == 0)
+		strcpy(statDel, "Terminated Normally");
+	else if(strcmp(argv[1], "-sig") == 0)
+		strcpy(statDel, "Terminated By Signal");
+	else
+		return 1;
+	
+	while(current->next != NULL){
+		procInfo(current->next, WNOHANG|WUNTRACED|WCONTINUED, 0);
+		if(strcmp(current->next->state, statDel)==0)
+			procRemoveElement(current);
+		else
+			current=current->next;
+	}
+
 	return 0;
 }
 
