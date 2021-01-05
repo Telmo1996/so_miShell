@@ -364,27 +364,58 @@ void procInfo(procNode_t* current){
 	int exitStatus=0;
 	char* state="";
 	char* returned="";
-	waitpid(current->pid, &status, WNOHANG|WUNTRACED);
+	int waitReturn;
+
+	waitReturn = waitpid(current->pid, &status, WNOHANG|WUNTRACED|WCONTINUED);
+	//printf("waitreturn: %d, finished: %d\n", waitReturn, current->finished);
+
+	if(waitReturn < 0 || (current->finished && waitReturn == 0)){ //No changes
+
+		if(strcmp(current->state, "Terminated Normally")==0){
+			didExit=1;
+		}
+		state=current->state;
+		exitStatus=current->exitStatus;
+		returned=current->returned;
+
+	}else if(waitReturn > 0){
 	
-	if((didExit=WIFEXITED(status))){
-		exitStatus=WEXITSTATUS(status);
-		state="Terminated Normally";
-		//sprintf(returned, "%d", exited);
-		//printf("--%d--", exited);
+		if((didExit=WIFEXITED(status))){
+			exitStatus=WEXITSTATUS(status);
+			state="Terminated Normally";
+			current->finished=1;
+			current->state = strdup(state);
+			current->exitStatus = exitStatus;
+		}
+
+		if(WIFSTOPPED(status)){
+			state="Stopped";
+			signal=WSTOPSIG(status);
+			returned=NombreSenal(signal);
+			//didExit=1;
+			current->finished=1;
+			current->state = strdup(state);
+			current->returned = strdup(returned);
+		}
+		if(WIFSIGNALED(status)){
+			state="Terminated By Signal";
+			signal=WTERMSIG(status);
+			returned=NombreSenal(signal);
+			current->finished=1;
+			current->state = strdup(state);
+			current->returned = strdup(returned);
+		}
+		if(WIFCONTINUED(status)){
+			state="Continued";
+			returned="";
+			current->finished=1;
+			current->state = strdup(state);
+			current->returned = strdup(returned);
+		}
+
 	}else{
 		state="Running";
-	}
-
-	if(WIFSTOPPED(status)){
-		state="Stopped";
-		signal=WSTOPSIG(status);
-		returned=NombreSenal(signal);
-		didExit=1;
-	}
-	if(WIFSIGNALED(status)){
-		state="Terminated By Signal";
-		signal=WTERMSIG(status);
-		returned=NombreSenal(signal);
+		current->finished = 0;
 	}
 
 	//Imprimir
@@ -413,7 +444,7 @@ int cmdListprocs(int argc, char *argv[]){
 
 int cmdProc(int argc, char *argv[]){
 	procNode_t* current = procLista;
-	procNode_t* pidNode;
+	procNode_t* pidNodePrev;
 	pid_t pid=0;
 	char *argProcs[1];
 	char doListProcs=0;
@@ -434,11 +465,11 @@ int cmdProc(int argc, char *argv[]){
 
 	if(pid != 0){
 		while(current->next != NULL){
-			current=current->next;
-			if(current->pid == pid){
+			if(current->next->pid == pid){
 				existe=1;
-				pidNode=current;
+				pidNodePrev=current;
 			}
+			current=current->next;
 		}
 	}
 
@@ -451,8 +482,9 @@ int cmdProc(int argc, char *argv[]){
 	if(toFg)
 		waitpid(pid, NULL, 0);
 
-	procInfo(pidNode);
-	//TODO borrar de lista;
+	procInfo(pidNodePrev->next);
+	
+	procRemoveElement(pidNodePrev);
 
 	return 0;
 }

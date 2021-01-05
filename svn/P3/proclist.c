@@ -9,6 +9,10 @@ procNode_t * procCreateList(){
 	head->fecha = "";
 	head->prio = 0;
 	head->pid = 0;
+	head->finished = 0;
+	head->state = "";
+	head->exitStatus = 0;
+	head->returned = "";
 
 	return head;
 }
@@ -35,4 +39,21 @@ void procInsertElement(char* cmdName, pid_t pid, int prio, procNode_t * head){
 	current->next->fecha = strdup(out);
 	current->next->prio = prio;
 	current->next->pid = pid;
+	current->next->finished = 0;
+	current->next->state = "";
+	current->next->exitStatus = 0;
+	current->next->returned = "";
+}
+
+void procRemoveElement(procNode_t * previous){
+	procNode_t* current = previous->next;
+
+	previous->next = current->next;
+
+	free(current->fecha);
+	free(current->commandName);
+	free(current->state);
+	free(current->returned);
+
+	free(current);
 }

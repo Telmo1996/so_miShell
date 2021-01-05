@@ -9,10 +9,14 @@ typedef struct procNode {
 	char* fecha;
 	int prio;
 	pid_t pid;
+	char finished;
+	char* state;
+	int exitStatus;
+	char* returned;
 } procNode_t;
 
 procNode_t * procLista;
 
 procNode_t * procCreateList();
 void procInsertElement(char*, pid_t, int, procNode_t *);
-
+void procRemoveElement(procNode_t *);
