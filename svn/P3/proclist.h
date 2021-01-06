@@ -3,8 +3,10 @@
 #include <string.h>
 #include <time.h>
 
-typedef struct procNode {
-	struct procNode * next;
+#define MAXL 4096
+
+
+typedef struct procNode_t {
 	char* commandName;
 	char* fecha;
 	int prio;
@@ -15,8 +17,15 @@ typedef struct procNode {
 	char* returned;
 } procNode_t;
 
-procNode_t * procLista;
+typedef struct lista_t{
+	procNode_t* nodos[MAXL];
+	int lastpos;
+}lista_t;
 
-procNode_t * procCreateList();
-void procInsertElement(char*, pid_t, int, procNode_t *);
-void procRemoveElement(procNode_t *);
+typedef lista_t *List;
+
+List procLista;
+
+void procCreateList(List);
+char procInsertElement(char*, pid_t, int, List);
+void procRemoveElement(int, List);

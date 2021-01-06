@@ -60,9 +60,17 @@ struct datoCmd tablaComandos[] = {
 
 int main(int argc, char *argv[]) {
     int ntrozos=0,i;
+
+	procLista = (List *)malloc(sizeof(List));
+	for(i=0; i<MAXL; i++){
+		procLista->nodos[i]=(procNode_t *)malloc(sizeof(procNode_t));
+	}
+
 	lista = CreateList();
 	memLista = memCreateList();
-	procLista = procCreateList();
+	procCreateList(&procLista);
+
+	//printf("%d\n", procLista->lastpos);
 
     while (true){
         printf("@");

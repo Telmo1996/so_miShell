@@ -1,20 +1,8 @@
 #include "proclist.h"
 
-procNode_t * procCreateList(){
-	procNode_t * head = NULL;
-	head = (procNode_t *) malloc(sizeof(procNode_t));
-
-	head->next = NULL;
-	head->commandName = "";
-	head->fecha = "";
-	head->prio = 0;
-	head->pid = 0;
-	head->finished = 0;
-	head->state = "";
-	head->exitStatus = 0;
-	head->returned = "";
-
-	return head;
+void procCreateList(List l){
+	if(l->nodos[0].pid == -1)
+		l->lastpos=-1;
 }
 
 void timeProc(char out[128]){
@@ -23,38 +11,48 @@ void timeProc(char out[128]){
     strftime(out,128,"%H:%M:%S %d/%m/%y", tlocal);
 }
 
-void procInsertElement(char* cmdName, pid_t pid, int prio, procNode_t * head){
-	procNode_t * current = head;
-	char out[128];
-	char foo[16] = "foo";
+char procInsertElement(char* cmdName, pid_t pid, int prio, List l){
+	char out[256];
+	char foo[16];
 
-	while(current->next != NULL){
-		current = current-> next;
+	strcpy(foo, "foo");
+
+	if(l->lastpos == MAXL - 1)
+		return 0;
+	else{
+		timeProc(out);
+
+		l->lastpos++;
+
+		//l->nodos[l->lastpos] = (procNode_t *) malloc(sizeof(procNode_t));
+		l->nodos[l->lastpos].commandName = strdup(cmdName);
+		l->nodos[l->lastpos].fecha = strdup(out);
+		l->nodos[l->lastpos].prio = prio;
+		l->nodos[l->lastpos].pid = pid;
+		l->nodos[l->lastpos].finished = 0;
+		l->nodos[l->lastpos].state = strdup(foo);
+		l->nodos[l->lastpos].exitStatus = 0;
+		l->nodos[l->lastpos].returned = strdup(foo);
+
 	}
-
-	timeProc(out);
-
-	current->next=(procNode_t *) malloc(sizeof(procNode_t));
-	current->next->next=NULL;
-	current->next->commandName = strdup(cmdName);
-	current->next->fecha = strdup(out);
-	current->next->prio = prio;
-	current->next->pid = pid;
-	current->next->finished = 0;
-	current->next->state = strdup(foo);
-	current->next->exitStatus = 0;
-	current->next->returned = strdup(foo);
+	return 1;
 }
 
-void procRemoveElement(procNode_t * previous){
-	procNode_t* current = previous->next;
+void procRemoveElement(int pos, List l){
+	int i, j=0;
 
-	previous->next = current->next;
+	for(i=0; j<=l->lastpos; i++){
+		if(i==pos)
+			j++;
 
-	free(current->fecha);
-	free(current->commandName);
-	free(current->state);
-	free(current->returned);
+		l->nodos[i].commandName = l->nodos[j].commandName ;
+		l->nodos[i].fecha = l->nodos[j].fecha;
+		l->nodos[i].prio = l->nodos[j].prio;
+		l->nodos[i].pid = l->nodos[j].pid;
+		l->nodos[i].finished = l->nodos[j].finished;
+		l->nodos[i].state = l->nodos[j].state;
+		l->nodos[i].exitStatus = l->nodos[j].exitStatus;
+		l->nodos[i].returned = l->nodos[j].returned;
 
-	free(current);
+	}
 }
