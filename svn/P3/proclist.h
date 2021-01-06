@@ -18,7 +18,7 @@ typedef struct procNode_t {
 } procNode_t;
 
 typedef struct lista_t{
-	procNode_t* nodos[MAXL];
+	procNode_t nodos[MAXL];
 	int lastpos;
 }lista_t;
 
