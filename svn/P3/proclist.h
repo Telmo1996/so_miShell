@@ -22,10 +22,10 @@ typedef struct lista_t{
 	int lastpos;
 }lista_t;
 
-typedef lista_t *List;
+typedef lista_t List;
 
 List procLista;
 
-void procCreateList(List);
-char procInsertElement(char*, pid_t, int, List);
-void procRemoveElement(int, List);
+void procCreateList(List *);
+char procInsertElement(char*, pid_t, int, List *);
+void procRemoveElement(int, List *);

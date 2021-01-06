@@ -1,6 +1,6 @@
 #include "proclist.h"
 
-void procCreateList(List l){
+void procCreateList(List* l){
 	if(l->nodos[0].pid == -1)
 		l->lastpos=-1;
 }
@@ -11,7 +11,7 @@ void timeProc(char out[128]){
     strftime(out,128,"%H:%M:%S %d/%m/%y", tlocal);
 }
 
-char procInsertElement(char* cmdName, pid_t pid, int prio, List l){
+char procInsertElement(char* cmdName, pid_t pid, int prio, List * l){
 	char out[256];
 	char foo[16];
 
@@ -22,7 +22,6 @@ char procInsertElement(char* cmdName, pid_t pid, int prio, List l){
 	else{
 		timeProc(out);
 
-		l->lastpos++;
 
 		//l->nodos[l->lastpos] = (procNode_t *) malloc(sizeof(procNode_t));
 		l->nodos[l->lastpos].commandName = strdup(cmdName);
@@ -34,11 +33,13 @@ char procInsertElement(char* cmdName, pid_t pid, int prio, List l){
 		l->nodos[l->lastpos].exitStatus = 0;
 		l->nodos[l->lastpos].returned = strdup(foo);
 
+		l->lastpos++;
+
 	}
 	return 1;
 }
 
-void procRemoveElement(int pos, List l){
+void procRemoveElement(int pos, List * l){
 	int i, j=0;
 
 	for(i=0; j<=l->lastpos; i++){
@@ -54,5 +55,7 @@ void procRemoveElement(int pos, List l){
 		l->nodos[i].exitStatus = l->nodos[j].exitStatus;
 		l->nodos[i].returned = l->nodos[j].returned;
 
+		j++;
 	}
+	l->lastpos--;
 }

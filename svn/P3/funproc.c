@@ -443,26 +443,26 @@ void procInfo(int pos, int options, char imprimir){
 	char* returned="";
 	int waitReturn;
 
-	waitReturn = waitpid(procLista->nodos[pos].pid, &status, options);
+	waitReturn = waitpid(procLista.nodos[pos].pid, &status, options);
 	//printf("waitreturn: %d, finished: %d\n", waitReturn, current->finished);
 
-	if(waitReturn < 0 || (procLista->nodos[pos].finished && waitReturn == 0)){ //No changes
+	if(waitReturn < 0 || (procLista.nodos[pos].finished && waitReturn == 0)){ //No changes
 
-		if(strcmp(procLista->nodos[pos].state, "Terminated Normally")==0){
+		if(strcmp(procLista.nodos[pos].state, "Terminated Normally")==0){
 			didExit=1;
 		}
-		state=procLista->nodos[pos].state;
-		exitStatus=procLista->nodos[pos].exitStatus;
-		returned=procLista->nodos[pos].returned;
+		state=procLista.nodos[pos].state;
+		exitStatus=procLista.nodos[pos].exitStatus;
+		returned=procLista.nodos[pos].returned;
 
 	}else if(waitReturn > 0){
 	
 		if((didExit=WIFEXITED(status))){
 			exitStatus=WEXITSTATUS(status);
 			state="Terminated Normally";
-			procLista->nodos[pos].finished=1;
-			procLista->nodos[pos].state = strdup(state);
-			procLista->nodos[pos].exitStatus = exitStatus;
+			procLista.nodos[pos].finished=1;
+			procLista.nodos[pos].state = strdup(state);
+			procLista.nodos[pos].exitStatus = exitStatus;
 		}
 
 		if(WIFSTOPPED(status)){
@@ -470,37 +470,37 @@ void procInfo(int pos, int options, char imprimir){
 			signal=WSTOPSIG(status);
 			returned=NombreSenal(signal);
 			//didExit=1;
-			procLista->nodos[pos].finished=1;
-			procLista->nodos[pos].state = strdup(state);
-			procLista->nodos[pos].returned = strdup(returned);
+			procLista.nodos[pos].finished=1;
+			procLista.nodos[pos].state = strdup(state);
+			procLista.nodos[pos].returned = strdup(returned);
 		}
 		if(WIFSIGNALED(status)){
 			state="Terminated By Signal";
 			signal=WTERMSIG(status);
 			returned=NombreSenal(signal);
-			procLista->nodos[pos].finished=1;
-			procLista->nodos[pos].state = strdup(state);
-			procLista->nodos[pos].returned = strdup(returned);
+			procLista.nodos[pos].finished=1;
+			procLista.nodos[pos].state = strdup(state);
+			procLista.nodos[pos].returned = strdup(returned);
 		}
 		if(WIFCONTINUED(status)){
 			state="Continued";
 			returned="";
-			procLista->nodos[pos].finished=1;
-			procLista->nodos[pos].state = strdup(state);
-			procLista->nodos[pos].returned = strdup(returned);
+			procLista.nodos[pos].finished=1;
+			procLista.nodos[pos].state = strdup(state);
+			procLista.nodos[pos].returned = strdup(returned);
 		}
 
 	}else{
 		state="Running";
-		procLista->nodos[pos].finished = 0;
+		procLista.nodos[pos].finished = 0;
 	}
 
 	//Imprimir
 	if(imprimir){
-		printf("%d: ",procLista->nodos[pos].pid);
-		printf("%d, ", procLista->nodos[pos].prio);
-		printf("%s\t", procLista->nodos[pos].commandName);
-		printf("%s ", procLista->nodos[pos].fecha);
+		printf("%d: ",procLista.nodos[pos].pid);
+		printf("%d, ", procLista.nodos[pos].prio);
+		printf("%s\t", procLista.nodos[pos].commandName);
+		printf("%s ", procLista.nodos[pos].fecha);
 		printf("%s ", state);
 		if(didExit)
 			printf("%d\n", exitStatus);
@@ -513,7 +513,7 @@ void procInfo(int pos, int options, char imprimir){
 int cmdListprocs(int argc, char *argv[]){
 	int i;
 
-	for(i=0; i<procLista->lastpos; i++){
+	for(i=0; i<procLista.lastpos; i++){
 		procInfo(i, WNOHANG|WUNTRACED|WCONTINUED, 1);
 	}
 
@@ -541,8 +541,8 @@ int cmdProc(int argc, char *argv[]){
 	}
 
 	if(pid != 0){
-		for(i=0; i<procLista->lastpos; i++){
-			if(procLista->nodos[i].pid == pid){
+		for(i=0; i<procLista.lastpos; i++){
+			if(procLista.nodos[i].pid == pid){
 				existe=1;
 				pos = i;
 			}
@@ -580,10 +580,12 @@ int cmdDeleteprocs(int argc, char *argv[]){
 	else
 		return 1;
 	
-	for(i=0; i<procLista->lastpos; i++){
+	for(i=0; i<procLista.lastpos; i++){
 		procInfo(i, WNOHANG|WUNTRACED|WCONTINUED, 0);
-		if(strcmp(procLista->nodos[i].state, statDel)==0)
+		if(strcmp(procLista.nodos[i].state, statDel)==0){
 			procRemoveElement(i, &procLista);
+			i--;
+		}
 	}
 
 	return 0;
